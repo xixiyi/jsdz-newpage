@@ -9,18 +9,12 @@
       <el-table-column prop="username" label="用户名" width="150"></el-table-column>
       <el-table-column prop="phone" label="手机号" width="150"></el-table-column>
       <el-table-column prop="mokuai.mokuainame" label="模块显示" width="150"></el-table-column>
-      <el-table-column prop="istuijianren" label="是否推荐人" width="150"></el-table-column>
+      <!-- <el-table-column prop="istuijianren" label="是否推荐人" width="150"></el-table-column> -->
       <el-table-column fixed="right" label="操作">
         <template slot-scope="scope">
           <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
+          <el-button @click="openDeleteDiv(scope.$index, userData)" type="text" size="small">删除员工</el-button>
           <el-button
-            v-if="scope.$index!=0"
-            @click="openDeleteDiv(scope.$index, userData)"
-            type="text"
-            size="small"
-          >删除员工</el-button>
-          <el-button
-            v-if="scope.$index!=0"
             @click.native.prevent="updateMokuai(scope.$index, userData)"
             type="text"
             size="small"
@@ -39,6 +33,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      style="text-align:center"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage4"
@@ -47,7 +42,6 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
     ></el-pagination>
-
     <el-dialog title="添加员工" width="31%" :visible.sync="insertDivVisible">
       <el-form :model="form">
         <el-form-item label="用户名" :label-width="formLabelWidth">
@@ -73,12 +67,12 @@
             </template>
           </el-autocomplete>
         </el-form-item>
-        <el-form-item label="是否推荐人" :label-width="formLabelWidth">
+        <!-- <el-form-item label="是否推荐人" :label-width="formLabelWidth">
           <el-select v-model="form.istuijianren" placeholder="请选择该员工是否为推荐人">
             <el-option label="否" value="否"></el-option>
             <el-option label="是" value="是"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="insertDivVisible = false">取 消</el-button>
@@ -121,6 +115,7 @@ export default {
       currentPage4: 1,
       pageSize: 10,
       total: 0,
+      pageNum: 1,
       form: {
         username: "",
         phone: "",
@@ -165,10 +160,15 @@ export default {
           params: data
         })
         .then(function(response) {
-          that.mokuaiData = response.data.data.list;
+          that.mokuaiData = response.data.data[0].list;
         })
         .catch(function(error) {});
     },
+    //     {
+    //           headers: {
+    //             'Content-Type': 'application/x-www-form-urlencoded'
+    //           }
+    // }
     selectUser(data) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
@@ -177,8 +177,9 @@ export default {
           params: data
         })
         .then(function(response) {
-          that.userData = response.data.data.list;
-          that.total = response.data.data.total;
+          console.log(response);
+          that.userData = response.data.data[0].list;
+          that.total = response.data.data[0].total;
         })
         .catch(function(error) {});
     },
@@ -190,6 +191,7 @@ export default {
       data.isfukuan = JSON.parse(localStorage.user).isfukuan;
       data.fukuantime = JSON.parse(localStorage.user).fukuantime;
       data.name = data.username;
+      data.usertype = 2;
       data.password = this.md5(data.password.trim());
       console.log(data);
       this.axios
@@ -202,7 +204,7 @@ export default {
           data.pageSize = that.pageSize;
           that.selectUser(data);
           that.startBianliang();
-          
+
           that.showAlert("添加成功", "success");
         })
         .catch(function(error) {});
@@ -214,10 +216,10 @@ export default {
       var data = {};
       data.dbid = JSON.parse(localStorage.user).dbid;
       data.uid = rows[index].uid;
-      data.status = 2;
+      // data.status = 2;
       console.log(data);
       this.axios
-        .get(this.commin.comUrl.user.update_user, {
+        .get(this.commin.comUrl.user.delete_user, {
           params: data
         })
         .then(function(response) {
@@ -242,7 +244,23 @@ export default {
           that.selectUser(data);
           that.showAlert("更改成功", "success");
           that.startBianliang();
-          
+        })
+        .catch(function(error) {});
+    },
+    updateUserLeftnav(data) {
+      var that = this;
+      data.dbid = JSON.parse(localStorage.user).dbid;
+      this.axios
+        .get(this.commin.comUrl.user.update_userLeftnav, {
+          params: data
+        })
+        .then(function(response) {
+          var data = {};
+          data.pageNum = that.pageNum;
+          data.pageSize = that.pageSize;
+          that.selectUser(data);
+          that.showAlert("更改成功", "success");
+          that.startBianliang();
         })
         .catch(function(error) {});
     },
@@ -251,8 +269,6 @@ export default {
       that.insertDivVisible = !that.insertDivVisible;
     },
     querySearch(queryString, cb) {
-      console.log(queryString);
-      console.log(this.mokuaiData);
       var mokuaiData = this.mokuaiData;
       var results = queryString
         ? mokuaiData.filter(this.createFilter(queryString))
@@ -261,9 +277,7 @@ export default {
       cb(results);
     },
     createFilter(queryString) {
-      console.log("jinli");
       return restaurant => {
-        console.log(restaurant);
         return restaurant.mokuainame.indexOf(queryString) === 0;
       };
     },
@@ -272,7 +286,7 @@ export default {
         this.insertUser(this.form);
       } else if (type == 2) {
         console.log(this.updateForm);
-        this.updateUser(this.updateForm);
+        this.updateUserLeftnav(this.updateForm);
       }
     },
     handleSelect(item) {
@@ -327,6 +341,7 @@ export default {
       var data = {};
       data.pageSize = val;
       data.pageNum = 1;
+      this.pageNum = 1;
       this.selectUser(data);
     },
     handleCurrentChange(val) {

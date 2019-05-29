@@ -9,33 +9,24 @@
       <el-table-column prop="username" label="用户名" width="150"></el-table-column>
       <el-table-column prop="phone" label="手机号" width="150"></el-table-column>
       <el-table-column prop="accountmanager.accountmanagername" label="推荐人" width="150"></el-table-column>
+      <el-table-column prop="grade.dengjiname" label="等级" width="150"></el-table-column>
       <el-table-column prop="address" label="地址" width="150"></el-table-column>
       <el-table-column prop="email" label="邮箱" width="150"></el-table-column>
       <el-table-column prop="yufukuan" label="预存款" width="150"></el-table-column>
       <el-table-column prop="zhangkuanzongji" label="应收账款" width="150"></el-table-column>
-      <el-table-column fixed="right" label="操作">
+      <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
-          <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
-          <el-button @click="openDeleteDiv(scope.$index, userData)" type="text" size="small">删除客户</el-button>
+          <el-button @click="openDeleteDiv(scope.$index, userData)" type="text" size="small">删除</el-button>
           <el-button
             @click.native.prevent="updateKehuinfo(scope.$index, userData)"
             type="text"
             size="small"
-          >更新信息</el-button>
-          <!-- <el-button v-if="scope.$index!=0" 
-            @click.native.prevent="updateTreeManager(scope.$index, mokuaiData,2)"
-            type="text"
-            size="small"
-          >分配按钮</el-button>
-          <el-button v-if="scope.$index!=0" 
-            @click.native.prevent="updateTreeManager(scope.$index, mokuaiData,3)"
-            type="text"
-            size="small"
-          >显示内容</el-button>-->
+          >更新</el-button>
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
+      style="text-align:center"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage4"
@@ -45,7 +36,12 @@
       :total="total"
     ></el-pagination>
 
-    <el-dialog :title="dialogTitle" width="31%" :visible.sync="dialogVisible">
+    <el-dialog
+      :before-close="startBianliang"
+      :title="dialogTitle"
+      width="31%"
+      :visible.sync="dialogVisible"
+    >
       <el-form :model="form">
         <el-form-item label="用户名" :label-width="formLabelWidth">
           <el-input v-model="form.username" auto-complete="off"></el-input>
@@ -62,7 +58,20 @@
         <el-form-item label="预存款" :label-width="formLabelWidth">
           <el-input v-model="form.yufukuan" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="推荐人" :label-width="formLabelWidth">
+        <el-form-item label="等级" :label-width="formLabelWidth">
+          <el-autocomplete
+            class="inline-input"
+            v-model="form.dengjiname"
+            :fetch-suggestions="dquerySearch"
+            placeholder="请点击选择等级"
+            @select="dhandleSelect"
+          >
+            <template slot-scope="props">
+              <div class="name">{{ props.item.dengjiname }}</div>
+            </template>
+          </el-autocomplete>
+        </el-form-item>
+        <el-form-item v-if="submitIndex==1" label="推荐人" :label-width="formLabelWidth">
           <el-autocomplete
             class="inline-input"
             v-model="form.accountmanagername"
@@ -77,7 +86,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="startBianliang()">取 消</el-button>
         <el-button v-if="submitIndex==1" type="primary" @click="onSubmit(1)">确 定</el-button>
         <el-button v-if="submitIndex==2" type="primary" @click="onSubmit(2)">确 定</el-button>
       </div>
@@ -113,12 +122,14 @@ export default {
     return {
       userData: [],
       accountmanagerData: [],
+      dengjiData: [],
       componentsStyle: { overflow: "auto", height: "" },
       tabHeight: "",
       currentPage4: 1,
       pageSize: 10,
       total: 0,
       submitIndex: 1,
+      pageNum: 1,
       form: {
         username: "",
         phone: "",
@@ -127,7 +138,12 @@ export default {
         yufukuan: "",
         dengjiname: "",
         accountmanagername: "",
-        accountmanagerid: ""
+        accountmanagerid: "",
+        tardy: 1,
+        invenaddress: "",
+        dengji: "",
+        accountmanager1: "",
+        dengjiid: ""
       },
       updateForm: {
         mokuainame: "",
@@ -156,6 +172,7 @@ export default {
       "px";
     this.selectAccountmanagername({});
     this.selectUser({ pageNum: 1, pageSize: 10 });
+    this.selectDengji({ pageNum: 1, pageSize: 10 });
   },
   methods: {
     selectAccountmanagername(data) {
@@ -171,6 +188,19 @@ export default {
         })
         .catch(function(error) {});
     },
+    selectDengji(data) {
+      var that = this;
+      data.dbid = JSON.parse(localStorage.user).dbid;
+      this.axios
+        .get(this.commin.comUrl.garde.select_garde, {
+          params: data
+        })
+        .then(function(response) {
+          console.log(response.data.data);
+          that.dengjiData = response.data.data;
+        })
+        .catch(function(error) {});
+    },
     selectUser(data) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
@@ -179,8 +209,8 @@ export default {
           params: data
         })
         .then(function(response) {
-          that.userData = response.data.data.list;
-          that.total = response.data.data.total;
+          that.userData = response.data.data[0].list;
+          that.total = response.data.data[0].total;
         })
         .catch(function(error) {});
     },
@@ -239,10 +269,10 @@ export default {
       var data = {};
       data.dbid = JSON.parse(localStorage.user).dbid;
       data.uid = rows[index].uid;
-      data.status = 2;
+      // data.status = 2;
       console.log(data);
       this.axios
-        .get(this.commin.comUrl.user.update_user, {
+        .get(this.commin.comUrl.user.delete_kehu, {
           params: data
         })
         .then(function(response) {
@@ -275,19 +305,19 @@ export default {
       data.uid = that.updateUid;
       console.log(data);
       this.axios
-        .get(this.commin.comUrl.user.update_user, {
+        .get(this.commin.comUrl.user.update_kehu, {
           params: data
         })
         .then(function(response) {
           console.log(response);
-          if (response.data.code == "0") {
+          if (response.data.status == "0") {
             var data = {};
             data.pageNum = that.pageNum;
             data.pageSize = that.pageSize;
             that.selectUser(data);
             that.showAlert("更改成功", "success");
             that.startBianliang();
-          } else if (response.data.code == "1") {
+          } else if (response.data.status == "1") {
             that.showAlert(response.data.msg, "warning");
             that.startBianliang();
           }
@@ -300,8 +330,6 @@ export default {
       that.submitIndex = 1;
     },
     querySearch(queryString, cb) {
-      console.log(queryString);
-      console.log(this.accountmanagerData);
       var accountmanagerData = this.accountmanagerData;
       var results = queryString
         ? accountmanagerData.filter(this.createFilter(queryString))
@@ -316,6 +344,22 @@ export default {
         return restaurant.accountmanagername.indexOf(queryString) === 0;
       };
     },
+
+    dquerySearch(queryString, cb) {
+      var dengjiData = this.dengjiData;
+      var results = queryString
+        ? dengjiData.filter(this.dcreateFilter(queryString))
+        : dengjiData;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    dcreateFilter(queryString) {
+      console.log("jinli");
+      return restaurant => {
+        console.log(restaurant);
+        return restaurant.dengjiname.indexOf(queryString) === 0;
+      };
+    },
     onSubmit(type) {
       if (type == 1) {
         this.insertUser(this.form);
@@ -326,6 +370,12 @@ export default {
     handleSelect(item) {
       this.form.accountmanagername = item.accountmanagername;
       this.form.accountmanagerid = item.accountmanagerid;
+      this.form.accountmanager1 = item.accountmanagername;
+    },
+    dhandleSelect(item) {
+      this.form.dengjiname = item.dengjiname;
+      this.form.dengji = item.dengjiid;
+      this.form.dengjiid = item.dengjiid;
     },
     openDeleteDiv(index, rows) {
       var that = this;
@@ -349,6 +399,15 @@ export default {
       this.dialogVisible = true;
       this.submitIndex = 2;
       this.updateUid = rows[index].uid;
+      this.form.username = rows[index].username;
+      this.form.phone = rows[index].phone;
+      // this.form.accountmanagername=rows[index].accountmanager.accountmanagername
+      this.form.dengjiname = rows[index].grade.dengjiname;
+      this.form.dengji = rows[index].grade.dengjiid;
+      this.form.dengjiid = rows[index].grade.dengjiid;
+      this.form.address = rows[index].address;
+      this.form.yufukuan = rows[index].yufukuan;
+      this.form.email = rows[index].email;
     },
     startBianliang() {
       this.dialogVisible = false;
@@ -364,7 +423,12 @@ export default {
         yufukuan: "",
         dengjiname: "",
         accountmanagername: "",
-        accountmanagerid: ""
+        accountmanagerid: "",
+        tardy: 1,
+        invenaddress: "",
+        dengji: "",
+        dengjiid: "",
+        accountmanager1: ""
       };
       this.updateForm = {
         mokuainame: "",
@@ -377,6 +441,7 @@ export default {
       var data = {};
       data.pageSize = val;
       data.pageNum = 1;
+      this.pageNum = 1;
       this.selectUser(data);
     },
     handleCurrentChange(val) {

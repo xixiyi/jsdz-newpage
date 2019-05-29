@@ -20,21 +20,29 @@
         <template>描述先空着</template>
       </el-table-column>
       <!-- <el-table-column prop="pinpaipaixu" label="排序" width="150"></el-table-column> -->
-      <el-table-column fixed="right" label="操作">
+      <el-table-column fixed="right" width="150" label="操作">
         <template slot-scope="scope">
           <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
           <el-button
+            v-if="scope.row.yincang==1"
             style="margin-right:10px"
             @click="openDeleteDiv(scope.$index, seriesData)"
             type="text"
             size="small"
-          >删除</el-button>
+          >隐藏</el-button>
+          <el-button
+            v-if="scope.row.yincang==2"
+            style="margin-right:10px"
+            @click="openDeleteDiv1(scope.$index, seriesData)"
+            type="text"
+            size="small"
+          >已隐藏</el-button>
           <el-button
             style="margin-left:0px;margin-right:10px"
             @click="openUpdatediv(scope.$index, seriesData)"
             type="text"
             size="small"
-          >更改</el-button>
+          >更新</el-button>
           <!--  <el-button
             @click.native.prevent="updateTreeManager(scope.$index, mokuaiData,1)"
             type="text"
@@ -54,6 +62,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      style="text-align:center"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage4"
@@ -63,7 +72,12 @@
       :total="total"
     ></el-pagination>
 
-    <el-dialog :title="dialogTitle" width="31%" :visible.sync="dialogVisible">
+    <el-dialog
+      :before-close="startBianliang"
+      :title="dialogTitle"
+      width="31%"
+      :visible.sync="dialogVisible"
+    >
       <el-form :model="form">
         <el-form-item label="品牌名" :label-width="formLabelWidth">
           <el-input v-model="form.seriesname" auto-complete="off"></el-input>
@@ -77,7 +91,7 @@
         <el-form-item label="系列" :label-width="formLabelWidth">
           <el-input v-model="form.seriesnum" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="只有一个编号" :label-width="formLabelWidth">
+        <el-form-item v-if="submitIndex==1" label="只有一个编号" :label-width="formLabelWidth">
           <el-select v-model="form.youwubianhao">
             <el-option label="否" value="1"></el-option>
             <el-option label="是" value="2"></el-option>
@@ -95,7 +109,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="startBianliang()">取 消</el-button>
         <el-button v-if="submitIndex==1" type="primary" @click="onSubmit(1)">确 定</el-button>
         <el-button v-if="submitIndex==2" type="primary" @click="onSubmit(2)">确 定</el-button>
       </div>
@@ -159,29 +173,29 @@ export default {
           params: data
         })
         .then(function(response) {
-          that.seriesData = response.data.data.list;
-          that.total = response.data.data.total;
+          that.seriesData = response.data.data[0].list;
+          that.total = response.data.data[0].total;
         })
         .catch(function(error) {});
     },
     insertseries(data) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
-      if(data.seriesname==""){
-          that.showAlert('品牌名不能为空','warning');
-          return
+      if (data.seriesname == "") {
+        that.showAlert("品牌名不能为空", "warning");
+        return;
       }
-      if(data.guige==""){
-          that.showAlert('规格不能为空','warning');
-          return
+      if (data.guige == "") {
+        that.showAlert("规格不能为空", "warning");
+        return;
       }
-      if(data.seriesnum==""){
-          that.showAlert('系列名不能为空','warning');
-          return
+      if (data.seriesnum == "") {
+        that.showAlert("系列名不能为空", "warning");
+        return;
       }
-      if(data.productname==""){
-          that.showAlert('产品名称不能为空','warning');
-          return
+      if (data.productname == "") {
+        that.showAlert("产品名称不能为空", "warning");
+        return;
       }
       console.log(data);
       this.axios
@@ -212,13 +226,13 @@ export default {
         })
         .then(function(response) {
           // console.log(response)
-          if (response.data.code == "0") {
+          if (response.data.status == "0") {
             var data = {};
             data.pageNum = that.pageNum;
             data.pageSize = that.pageSize;
             that.selectseries(data);
             that.startBianliang();
-          } else if (response.data.code == "1") {
+          } else if (response.data.status == "1") {
             that.showAlert(response.data.msg, "warning");
           }
         })
@@ -229,6 +243,15 @@ export default {
       console.log(rows);
       var data = {};
       data.yincang = 2;
+      //   data.seriesid = rows[index].seriesid;
+      this.updateseriesid = rows[index].seriesid;
+      this.updateseries(data);
+    },
+    deleteseries1(index, rows) {
+      console.log(index);
+      console.log(rows);
+      var data = {};
+      data.yincang = 1;
       //   data.seriesid = rows[index].seriesid;
       this.updateseriesid = rows[index].seriesid;
       this.updateseries(data);
@@ -250,13 +273,24 @@ export default {
       this.dialogVisible = true;
       this.dialogTitle = "更改：" + rows[index].seriesnum;
       this.submitIndex = 2;
+      this.form.youwubianhao = rows[index].youwubianhao;
       this.updateseriesid = rows[index].seriesid;
+      this.form = {
+        seriesname: rows[index].seriesname,
+        productname: rows[index].productname,
+        guige: rows[index].guige,
+        seriesnum: rows[index].seriesnum,
+        youwubianhao: rows[index].youwubianhao,
+        xiliedanwei: rows[index].xiliedanwei,
+        mingxidanwei: rows[index].mingxidanwei
+      };
     },
     handleSizeChange(val) {
       this.pageSize = val;
       var data = {};
       data.pageSize = val;
       data.pageNum = 1;
+      this.pageNum = 1;
       this.selectseries(data);
     },
     handleCurrentChange(val) {
@@ -284,7 +318,7 @@ export default {
     openDeleteDiv(index, rows) {
       var that = this;
       this.$confirm(
-        "此操作将删除" + rows[index].seriesnum + ", 是否继续?",
+        "此操作将隐藏" + rows[index].seriesnum + ", 是否继续?",
         "",
         {
           confirmButtonText: "确定",
@@ -294,6 +328,22 @@ export default {
       )
         .then(() => {
           that.deleteseries(index, rows);
+        })
+        .catch(() => {});
+    },
+    openDeleteDiv1(index, rows) {
+      var that = this;
+      this.$confirm(
+        "此操作将显示" + rows[index].seriesnum + ", 是否继续?",
+        "",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
+        .then(() => {
+          that.deleteseries1(index, rows);
         })
         .catch(() => {});
     },

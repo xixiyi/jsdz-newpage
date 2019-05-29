@@ -100,17 +100,22 @@ export default {
         })
         .then(function(data) {
           var data = data.data;
-          if (data.code == "0") {
+          console.log(data)
+          if (data.status == "0") {
+            that.showAlert("注册成功", "success");
             // that.router.push({
             //   path: "/updateUserinfo?uid=" + data.data.uid
             // });
-            localStorage.uid = data.data.uid;
-            localStorage.vueTitle = "完善公司信息"
-            localStorage.vueView = "info"
-            console.log(localStorage)
+            // localStorage.uid = data.data.uid;
+            localStorage.vueTitle = "登录"
+            localStorage.vueView = "login_in"
+            // console.log(localStorage)
             that.$store.commit("changevueTitle");
-          } else if (data.code == "1") {
+          } else if (data.status == "1") {
             that.showAlert("该手机号已经注册过了，请去登录", "warning");
+             localStorage.vueTitle = "登录"
+            localStorage.vueView = "login_in"
+             that.$store.commit("changevueTitle");
           }
         })
         .catch(function(error) {});

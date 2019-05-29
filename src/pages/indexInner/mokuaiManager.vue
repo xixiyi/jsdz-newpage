@@ -30,6 +30,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      style="text-align:center"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage4"
@@ -121,26 +122,28 @@ export default {
   methods: {
     selectMokuai(data) {
       var that = this;
-      data.dbid = JSON.parse(localStorage.user).dbid
+      data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
         .get(this.commin.comUrl.mokuai.select, {
           params: data
         })
         .then(function(response) {
-          that.mokuaiData = response.data.data.list;
-          that.total = response.data.data.total;
-          that.treeVisible = false
+          console.log(response);
+          that.mokuaiData = response.data.data[0].list;
+          that.total = response.data.data[0].total;
+          that.treeVisible = false;
         })
         .catch(function(error) {});
     },
     insertMokuai(data) {
       var that = this;
-      data.dbid = JSON.parse(localStorage.user).dbid
+      data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
         .get(this.commin.comUrl.mokuai.insert, {
           params: data
         })
         .then(function(response) {
+          console.log(response);
           var data = {};
           data.pageNum = 1;
           data.pageSize = that.pageSize;
@@ -149,16 +152,16 @@ export default {
         .catch(function(error) {});
     },
     deleteMokuai(index, rows) {
-      
       var that = this;
       var data = {};
-      data.dbid = JSON.parse(localStorage.user).dbid
+      data.dbid = JSON.parse(localStorage.user).dbid;
       data.id = rows[index].id;
       this.axios
         .get(this.commin.comUrl.mokuai.delete, {
           params: data
         })
         .then(function(response) {
+          console.log(response);
           var data = {};
           data.pageNum = 1;
           data.pageSize = that.pageSize;
@@ -166,14 +169,15 @@ export default {
         })
         .catch(function(error) {});
     },
-    updateMokuai(data){
+    updateMokuai(data) {
       var that = this;
-      data.dbid = JSON.parse(localStorage.user).dbid
+      data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
         .get(this.commin.comUrl.mokuai.update, {
           params: data
         })
         .then(function(response) {
+          console.log(response);
           var data = {};
           data.pageNum = that.pageNum;
           data.pageSize = that.pageSize;
@@ -198,11 +202,15 @@ export default {
     },
     openDeleteDiv(index, rows) {
       var that = this;
-      this.$confirm("此操作将永久删除该模块, 是否继续?", "", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
+      this.$confirm(
+        "此操作将永久删除" + rows[index].mokuainame + ", 是否继续?",
+        "",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
         .then(() => {
           that.deleteMokuai(index, rows);
         })
@@ -213,6 +221,7 @@ export default {
       var data = {};
       data.pageSize = val;
       data.pageNum = 1;
+      this.pageNum = 1;
       this.selectMokuai(data);
     },
     handleCurrentChange(val) {
@@ -224,32 +233,32 @@ export default {
     },
     updateTreeManager(index, rows, type) {
       this.treeVisible = true;
-      
+
       if (type == 1) {
-        this.treeTitle = "分配菜单：" + rows[index].mokuainame
+        this.treeTitle = "分配菜单：" + rows[index].mokuainame;
         this.treeData = this.menuData;
-        console.log(rows[index].menuData)
-        var arr = []
-        var menuData = rows[index].menuData||""
-        var getarr = menuData.split(",")
-        for(var i=0;i<this.navMenu.menuTitle.length;i++){
-          for(var j=0;j<getarr.length;j++){
-            if(this.navMenu.menuTitle[i].class==getarr[j]){
+        console.log(rows[index].menuData);
+        var arr = [];
+        var menuData = rows[index].menuData || "";
+        var getarr = menuData.split(",");
+        for (var i = 0; i < this.navMenu.menuTitle.length; i++) {
+          for (var j = 0; j < getarr.length; j++) {
+            if (this.navMenu.menuTitle[i].class == getarr[j]) {
               getarr.splice(j, 1);
             }
           }
         }
         this.$nextTick(function() {
-          this.$refs.treeManger.setCheckedKeys(getarr)
-        })
-        console.log(getarr)
+          this.$refs.treeManger.setCheckedKeys(getarr);
+        });
+        console.log(getarr);
       } else if (type == 2) {
         this.treeData = [];
       } else if (type == 2) {
         this.treeData = [];
       }
       this.updateTreeType = type;
-      
+
       this.updateMokuaiId = rows[index].id;
       console.log(this.updateMokuaiId);
       console.log(rows);
@@ -258,8 +267,8 @@ export default {
     getTreeKey() {
       var checkTreeData = this.$refs.treeManger.getCheckedKeys();
       var checkTreeDataStr = checkTreeData.join(",");
-      var data = {}
-      data.id = this.updateMokuaiId
+      var data = {};
+      data.id = this.updateMokuaiId;
       if (this.updateTreeType == 1) {
         for (var i = 0; i < this.navMenu.menuTitle.length; i++) {
           if (checkTreeDataStr.indexOf(this.navMenu.menuTitle[i].class) != -1) {
@@ -270,14 +279,14 @@ export default {
       var set = new Set(checkTreeData);
       checkTreeData = Array.from(set);
       console.log(checkTreeData);
-      if(this.updateTreeType==1){
-        data.menuData = checkTreeData.join(",")
-      }else if(this.updateTreeType==2){
-        return
-      }else if(this.updateTreeType==3){
-        return
+      if (this.updateTreeType == 1) {
+        data.menuData = checkTreeData.join(",");
+      } else if (this.updateTreeType == 2) {
+        return;
+      } else if (this.updateTreeType == 3) {
+        return;
       }
-      this.updateMokuai(data)
+      this.updateMokuai(data);
     }
   }
 };

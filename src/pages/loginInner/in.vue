@@ -99,92 +99,7 @@ export default {
         .then(function(data) {
           var data = data.data;
           console.log(data);
-          if (data.code == 0) {
-            console.log(data);
-            var isfukuan = data.data.isfukuan;
-            if (isfukuan == 1) {
-              var zhucetime = data.data.zhucetime;
-              var endtime = that.timeUtil.addDate(zhucetime, 7, 0, 0);
-              var nowtime = that.timeUtil.shifenmiaotime(new Date());
-              console.log(endtime);
-              console.log(nowtime);
-              if (endtime < nowtime) {
-                if (data.data.leftnav == 1) {
-                  that.showNotify(
-                    "提示",
-                    "您公司系统的试用时间已经结束，点击此消息进入购买页面",
-                    function() {
-                      console.log("购买");
-                    },
-                    "warning"
-                  );
-                } else {
-                  that.showNotify(
-                    "提示",
-                    "您公司系统的试用时间已经结束，请尽快联系老板点击此消息进入购买页面",
-                    function() {
-                      console.log("购买");
-                    },
-                    "warning"
-                  );
-                }
-                return;
-              } else {
-                if (data.data.leftnav == 1) {
-                  that.showNotify(
-                    "提示",
-                    "您公司系统的试用时间将于" +
-                      endtime +
-                      "结束，点击此消息进入购买页面",
-                    function() {
-                      console.log("购买");
-                    },
-                    ""
-                  );
-                }
-              }
-            }else if(isfukuan == 2){
-              var fukuantime = data.data.fukuantime;
-              var endtime = that.timeUtil.addDate(fukuantime, 365, 0, 0);
-              var nowtime = that.timeUtil.shifenmiaotime(new Date());
-              console.log(endtime);
-              console.log(nowtime);
-              if (endtime < nowtime) {
-                if (data.data.leftnav == 1) {
-                  that.showNotify(
-                    "提示",
-                    "您公司系统的使用时间已经结束，点击此消息进入购买页面",
-                    function() {
-                      console.log("购买");
-                    },
-                    "warning"
-                  );
-                } else {
-                  that.showNotify(
-                    "提示",
-                    "您公司系统的使用时间已经结束，请尽快联系老板点击此消息进入购买页面",
-                    function() {
-                      console.log("购买");
-                    },
-                    "warning"
-                  );
-                }
-                return;
-              } else {
-                if (data.data.leftnav == 1) {
-                  that.showNotify(
-                    "提示",
-                    "您公司系统的使用时间将于" +
-                      endtime +
-                      "结束，点击此消息进入购买页面",
-                    function() {
-                      console.log("购买");
-                    },
-                    ""
-                  );
-                }
-              }
-            }
+          if (data.status == 0) {
             localStorage.user = JSON.stringify(data.data);
             var exp = new Date();
             var Days = 1000;
@@ -196,17 +111,19 @@ export default {
               exp.toGMTString() +
               ";path=/" +
               localStorage.projectPath;
+              console.log(data.data.uid)
+              console.log(localStorage.projectPath)
             that.showAlert("登录成功", "success");
             that.router.push({
               path: "/index"
             });
-          } else if (data.code == "1") {
+          } else if (data.status == "1") {
             that.showAlert("您输入的账号没有注册", "warning");
-          } else if (data.code == "2") {
+          } else if (data.status == "2") {
             that.showAlert("您的密码错误", "error");
-          } else if (data.code == 3) {
+          } else if (data.status == 3) {
             that.showAlert("请使用电脑登录", "warning");
-          } else if (data.code == 4) {
+          } else if (data.status == 4) {
             that.showAlert("请使用公司电脑登录", "warning");
           }
         })

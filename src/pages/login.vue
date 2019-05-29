@@ -2,11 +2,8 @@
   <div class="homepage-hero-module">
     <div class="video-container">
       <div :style="fixStyle" class="filter"></div>
-      <video muted :style="fixStyle" autoplay loop class="fillWidth" v-on:canplay="canplay">
-        <source
-          src="../source/video/login.mp4"
-          type="video/mp4"
-        >浏览器不支持 video 标签，建议升级浏览器。
+      <video :style="fixStyle" autoplay loop class="fillWidth" v-on:canplay="canplay">
+        <source src="../source/video/login.mp4" type="video/mp4">浏览器不支持 video 标签，建议升级浏览器。
       </video>
       <div class="poster hidden" v-if="!vedioCanPlay">
         <img :style="fixStyle" src="../source/images/bgimg.png" alt>
@@ -21,14 +18,19 @@
       v-loading.fullscreen.lock="isloading"
       element-loading-background="rgba(0, 0, 0, 0.8)"
     >
-      <div v-if="vueFlag" :style="contentHeaderStyle">
+      <div :style="contentHeaderStylelogo">
+        <img style="width:180px" src="../source/images/login.png" alt>
+        <!-- <span>没有账号？</span>
+        <el-button @click="jumpRegist">注册试用</el-button>-->
+      </div>
+      <!-- <div v-if="vueFlag" :style="contentHeaderStyle">
         <span>没有账号？</span>
         <el-button @click="jumpRegist">注册试用</el-button>
       </div>
       <div v-else :style="contentHeaderStyle">
         <span>已有账号？</span>
         <el-button @click="jumpRegist">登录</el-button>
-      </div>
+      </div>-->
 
       <div :style="contentBodyStyle">
         <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -78,6 +80,12 @@ export default {
         right: "100px",
         color: "#fff"
       },
+      contentHeaderStylelogo: {
+        position: "absolute",
+        top: "20px",
+        left: "50px",
+        color: "#fff"
+      },
       activeName: "first"
     };
   },
@@ -87,7 +95,7 @@ export default {
       // console.log(val)
     },
     changevueTitle(val) {
-      console.log("chufa3")
+      console.log("chufa3");
       this.vueTitle = val;
       this.vueView = this.$store.state.vueView;
     }
@@ -97,7 +105,7 @@ export default {
       return this.$store.state.isloading;
     },
     changevueTitle() {
-           console.log("chufa2")
+      console.log("chufa2");
       return this.$store.state.vueTitle;
     }
   },

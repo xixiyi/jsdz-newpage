@@ -21,9 +21,10 @@
         <template>描述先空着</template>
       </el-table-column>
       <el-table-column label="报警值" width="150">
-          <template slot-scope="scope">{{scope.row.invenbaojing}}{{scope.row.series.xiliedanwei}}</template>
+        <template slot-scope="scope">{{scope.row.invenbaojing}}{{scope.row.series.xiliedanwei}}</template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作">
+      <el-table-column prop="weight" label="重量" width="150"></el-table-column>
+      <el-table-column fixed="right" width="150" label="操作">
         <template slot-scope="scope">
           <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
           <el-button
@@ -31,13 +32,19 @@
             @click="openDeleteDiv(scope.$index, productData)"
             type="text"
             size="small"
-          >删除</el-button>
+          >隐藏</el-button>
+          <el-button
+            style="margin-right:10px"
+            @click="openupdateDiv(scope.$index, productData)"
+            type="text"
+            size="small"
+          >更新</el-button>
           <!-- <el-button
             style="margin-left:0px;margin-right:10px"
             @click="openUpdatediv(scope.$index, productData)"
             type="text"
             size="small"
-          >更改</el-button> -->
+          >更改</el-button>-->
           <!--  <el-button
             @click.native.prevent="updateTreeManager(scope.$index, mokuaiData,1)"
             type="text"
@@ -57,6 +64,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
+    style="text-align:center"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage4"
@@ -66,7 +74,12 @@
       :total="total"
     ></el-pagination>
 
-    <el-dialog :title="dialogTitle" width="31%" :visible.sync="dialogVisible">
+    <el-dialog
+      :before-close="startBianliang"
+      :title="dialogTitle"
+      width="31%"
+      :visible.sync="dialogVisible"
+    >
       <el-form :model="form">
         <el-form-item label="系列" :label-width="formLabelWidth">
           <el-autocomplete
@@ -89,7 +102,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="startBianliang()">取 消</el-button>
         <el-button v-if="submitIndex==1" type="primary" @click="onSubmit(1)">确 定</el-button>
         <el-button v-if="submitIndex==2" type="primary" @click="onSubmit(2)">确 定</el-button>
       </div>
@@ -123,7 +136,7 @@ export default {
         productnum: "",
         weight: ""
       },
-      updateseriesid: ""
+      updateproductinid: ""
     };
   },
   mounted() {
@@ -152,7 +165,7 @@ export default {
           params: data
         })
         .then(function(response) {
-          that.seriesData = response.data.data.list;
+          that.seriesData = response.data.data[0].list;
         })
         .catch(function(error) {});
     },
@@ -164,8 +177,8 @@ export default {
           params: data
         })
         .then(function(response) {
-          that.productData = response.data.data.list;
-          that.total = response.data.data.total;
+          that.productData = response.data.data[0].list;
+          that.total = response.data.data[0].total;
         })
         .catch(function(error) {});
     },
@@ -190,23 +203,23 @@ export default {
         })
         .catch(function(error) {});
     },
-    updateproduct(data) {
+    yincangproduct(data) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
       console.log(data);
       this.axios
-        .get(this.commin.comUrl.product.update_product, {
+        .get(this.commin.comUrl.product.yincang_product, {
           params: data
         })
         .then(function(response) {
           // console.log(response)
-          if (response.data.code == "0") {
+          if (response.data.status == "0") {
             var data = {};
             data.pageNum = that.pageNum;
             data.pageSize = that.pageSize;
             that.selectproduct(data);
             that.startBianliang();
-          } else if (response.data.code == "1") {
+          } else if (response.data.status == "1") {
             that.showAlert(response.data.msg, "warning");
           }
         })
@@ -218,7 +231,30 @@ export default {
       var data = {};
       data.yincang = 2;
       data.productinid = rows[index].productinid;
-      this.updateproduct(data);
+      this.yincangproduct(data);
+    },
+    updateproduct(data) {
+      var that = this;
+      data.dbid = JSON.parse(localStorage.user).dbid;
+      data.productinid = that.updateproductinid;
+      console.log(data);
+      this.axios
+        .get(this.commin.comUrl.product.update_product, {
+          params: data
+        })
+        .then(function(response) {
+          // console.log(response)
+          if (response.data.status == "0") {
+            var data = {};
+            data.pageNum = that.pageNum;
+            data.pageSize = that.pageSize;
+            that.selectproduct(data);
+            that.startBianliang();
+          } else if (response.data.status == "1") {
+            that.showAlert(response.data.msg, "warning");
+          }
+        })
+        .catch(function(error) {});
     },
     onSubmit(index) {
       if (index == 1) {
@@ -231,27 +267,35 @@ export default {
       this.dialogVisible = true;
       this.dialogTitle = "添加型号";
       this.submitIndex = 1;
-      this.updateseriesid = "";
+      this.updateproductinid = "";
     },
-    openUpdatediv(index, rows) {
+    openupdateDiv(index, rows) {
       this.dialogVisible = true;
-      this.dialogTitle = "更改：" + rows[index].seriesnum;
+      this.dialogTitle = "更新型号：" + rows[index].productnum;
       this.submitIndex = 2;
-      this.updateseriesid = rows[index].seriesid;
+      this.updateproductinid = rows[index].productinid;
+      this.form = {
+        seriesnum: rows[index].series.seriesnum,
+        seriesid: rows[index].series.seriesid,
+        productnum: rows[index].productnum,
+        weight: rows[index].weight
+      };
     },
+
     handleSizeChange(val) {
       this.pageSize = val;
       var data = {};
       data.pageSize = val;
       data.pageNum = 1;
-      this.selectseries(data);
+      this.pageNum = 1;
+      this.selectproduct(data);
     },
     handleCurrentChange(val) {
       this.pageNum = val;
       var data = {};
       data.pageSize = this.pageSize;
       data.pageNum = val;
-      this.selectseries(data);
+      this.selectproduct(data);
     },
     handleSelect(item) {
       console.log(item);
@@ -276,7 +320,7 @@ export default {
       };
     },
     startBianliang() {
-      this.updateseriesid = "";
+      this.updateproductinid = "";
       this.dialogTitle = "添加型号";
       this.submitIndex = 1;
       this.dialogVisible = false;

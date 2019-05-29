@@ -9,6 +9,17 @@ function shifenmiaotime(date) {
     const second = date.getSeconds()
     return year + '-' + formatNumber(month) + '-' + formatNumber(day) + " " + formatNumber(hour) + ":" + formatNumber(minute) + ":" + formatNumber(second)
 }
+
+//格式：20190301010101
+function timelongstring(date) {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const hour = date.getHours()
+    const minute = date.getMinutes()
+    const second = date.getSeconds()
+    return year + formatNumber(month) + formatNumber(day) + formatNumber(hour) + formatNumber(minute) + formatNumber(second)
+}
 // 获取今日时间
 function getToday(date) {
     const year = date.getFullYear()
@@ -37,11 +48,12 @@ function addDate(date, days, hours, minutes) {
     const second = date.getSeconds()
     // return [year, month, day].map(formatNumber).join('')
     return year + '-' + formatNumber(month) + '-' + formatNumber(day) + " " + formatNumber(hour) + ":" + formatNumber(minute) + ":" + formatNumber(second)
-  }
+}
 
 
-  export default{
+export default {
     shifenmiaotime,
+    timelongstring,
     getToday,
     addDate
 }

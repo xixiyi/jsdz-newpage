@@ -36,8 +36,13 @@
           </el-menu-item>
           <el-submenu index="2">
             <template slot="title">{{user.username}}</template>
-            <el-menu-item style="text-align:center" data-src="false">{{user.company}}</el-menu-item>
-            <el-menu-item style="text-align:center" data-src="jibenziliao" data-title="基本资料" index="2-1">基本资料</el-menu-item>
+            <!-- <el-menu-item style="text-align:center" data-src="false">{{user.company}}</el-menu-item> -->
+            <el-menu-item
+              style="text-align:center"
+              data-src="jibenziliao"
+              data-title="基本资料"
+              index="2-1"
+            >基本资料</el-menu-item>
             <el-menu-item style="text-align:center" data-src="loginout" index="2-2">退出登录</el-menu-item>
           </el-submenu>
         </el-menu>
@@ -64,7 +69,7 @@
                 <el-menu-item
                   index="1-1"
                   class="mokuai_menuManager_1_1"
-                  data-src="order"
+                  data-src="purchOrder"
                   data-title="购货订单"
                 >购货订单</el-menu-item>
                 <el-menu-item
@@ -100,15 +105,15 @@
                 <el-menu-item
                   index="2-2"
                   class="mokuai_menuManager_2_2"
-                  data-src
+                  data-src="sellOrder"
                   data-title="销售单"
                 >销售单</el-menu-item>
                 <el-menu-item
                   index="2-3"
                   class="mokuai_menuManager_2_3"
                   data-src="www.baidu6.com"
-                  data-title="销售完成订单"
-                >销售完成订单</el-menu-item>
+                  data-title="销售完成单据"
+                >销售完成单据</el-menu-item>
                 <el-menu-item
                   index="2-4"
                   class="mokuai_menuManager_2_4"
@@ -130,7 +135,7 @@
                 <el-menu-item
                   index="3-1"
                   class="mokuai_menuManager_3_1"
-                  data-src="www.ba8idu.com"
+                  data-src="insertInvenManager"
                   data-title="入库"
                 >入库</el-menu-item>
                 <!-- <el-submenu index="3-2" class="mokuai_menuManager_3_2">
@@ -169,7 +174,7 @@
                 <el-menu-item
                   index="3-5"
                   class="mokuai_menuManager_3_5"
-                  data-src="www.baidu087.com"
+                  data-src="inven"
                   data-title="库存详情"
                 >库存详情</el-menu-item>
                 <el-menu-item
@@ -310,7 +315,7 @@
                 <el-menu-item
                   index="6-2"
                   class="mokuai_menuManager_6_2"
-                  data-src="www.baitredu.com"
+                  data-src="firmManager"
                   data-title="供应商管理"
                 >供应商管理</el-menu-item>
                 <el-menu-item
@@ -401,12 +406,29 @@
 /*
   引入不同的组件页面
 */
+/**首页 */
+import shouye from './indexInner/shouye'
+
+/**购货模块 */
+import purchOrder from "./indexInner/purchOrder";
 import shopOrder from "./indexInner/shopOrder";
-import order from "./indexInner/order";
-import mokuaiManager from "./indexInner/mokuaiManager";
-import staff from "./indexInner/staff";
+
+/**销售模块 */
+import sellOrder from "./indexInner/sellOrder"
+
+/** 仓库模块 */
+import insertInvenManager from "./indexInner/insertInvenManager";
+import inven from "./indexInner/inven";
+
+/** 资料模块 */
 import kehu from "./indexInner/kehu";
-import productManager from "./indexInner/productManager"
+import firmManager from "./indexInner/firmManager";
+import productManager from "./indexInner/productManager";
+import staff from "./indexInner/staff";
+
+/** 设置模块 */
+import mokuaiManager from "./indexInner/mokuaiManager";
+
 export default {
   name: "index",
   data() {
@@ -442,7 +464,7 @@ export default {
         {
           title: "主页",
           name: "1",
-          content: "shopOrder",
+          content: "shouye",
           closable: false
         }
       ],
@@ -451,12 +473,17 @@ export default {
     };
   },
   components: {
+    shouye,
+    purchOrder,
     shopOrder,
-    order,
-    mokuaiManager,
-    staff,
+    insertInvenManager,
+    inven,
     kehu,
-    productManager
+    firmManager,
+    productManager,
+    staff,
+    mokuaiManager,
+    sellOrder
   },
   mounted() {
     this.clientHeight.height =
@@ -496,8 +523,8 @@ export default {
     },
     addTab(targetName) {
       console.log(this.editableTabs);
-      if(targetName.$attrs["data-src"] == "false"){
-        return
+      if (targetName.$attrs["data-src"] == "false") {
+        return;
       }
       if (targetName.$attrs["data-src"] == "loginout") {
         //   console.log(self.router)
