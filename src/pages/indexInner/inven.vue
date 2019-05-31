@@ -1,13 +1,9 @@
 <template>
   <div>
     <el-form ref="form" :model="whereObj">
-      <div style="display:flex;flex-wrap:nowrap;justify-content: center;">
-        <!-- <el-form-item label="型号"> -->
+      <div style="display:flex;flex-wrap:nowrap;justify-content: center;margin-bottom:8px">
         <el-input @input="inputBlur" placeholder="请输入型号" v-model="whereObj.productnum"></el-input>
-        <!-- </el-form-item> -->
-        <!-- <el-form-item label="批次"> -->
         <el-input @input="inputBlur" placeholder="请输入批次" v-model="whereObj.pici"></el-input>
-        <!-- </el-form-item> -->
       </div>
     </el-form>
     <el-table :data="invenData" :border="border" style="width: 100%" :height="tabHeight">

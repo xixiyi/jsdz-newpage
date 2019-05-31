@@ -59,7 +59,6 @@
             class="inline-input"
             v-model="form.mokuainame"
             :fetch-suggestions="querySearch"
-            placeholder="请点击选择模块"
             @select="handleSelect"
           >
             <template slot-scope="props">
@@ -87,7 +86,6 @@
             class="inline-input"
             v-model="updateForm.mokuainame"
             :fetch-suggestions="querySearch"
-            placeholder="请点击选择模块"
             @select="handleSelect"
           >
             <template slot-scope="props">
@@ -148,11 +146,10 @@ export default {
       36 -
       28 +
       "px";
-    this.selectMokuai({ pageNum: 1, pageSize: 10000 });
     this.selectUser({ pageNum: 1, pageSize: 10 });
   },
   methods: {
-    selectMokuai(data) {
+    selectMokuai(data, cb) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
@@ -161,14 +158,10 @@ export default {
         })
         .then(function(response) {
           that.mokuaiData = response.data.data[0].list;
+          cb(response.data.data[0].list);
         })
         .catch(function(error) {});
     },
-    //     {
-    //           headers: {
-    //             'Content-Type': 'application/x-www-form-urlencoded'
-    //           }
-    // }
     selectUser(data) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
@@ -269,12 +262,17 @@ export default {
       that.insertDivVisible = !that.insertDivVisible;
     },
     querySearch(queryString, cb) {
-      var mokuaiData = this.mokuaiData;
-      var results = queryString
-        ? mokuaiData.filter(this.createFilter(queryString))
-        : mokuaiData;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
+      // var mokuaiData = this.mokuaiData;
+      // var results = queryString
+      //   ? mokuaiData.filter(this.createFilter(queryString))
+      //   : mokuaiData;
+      // // 调用 callback 返回建议列表的数据
+      // cb(results);
+      var data = {};
+      data.mokuainame = queryString;
+      data.pageNum = 1;
+      data.pageSize = 10;
+      this.selectMokuai(data, cb);
     },
     createFilter(queryString) {
       return restaurant => {

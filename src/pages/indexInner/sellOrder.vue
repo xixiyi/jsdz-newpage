@@ -8,13 +8,7 @@
       </div>
       <div>
         <el-button v-show="newAddVisble" size="mini" round type="primary" @click="startBianliang">新增</el-button>
-        <el-button
-          v-show="fanshenhe"
-          size="mini"
-          round
-          type="primary"
-          @click="fanshenhe = false"
-        >反审核</el-button>
+
         <el-button
           v-show="newAddVisble&&!yidayinVisble"
           size="mini"
@@ -29,11 +23,11 @@
           type="primary"
           @click="onPrint(1)"
         >已打印</el-button>
-        <el-button v-show="!fanshenhe" size="mini" round type="primary" @click="onSubmit(2)">保存</el-button>
-        <el-button v-show="!fanshenhe" size="mini" round type="primary" @click="onSubmit(10)">审核</el-button>
+        <el-button v-show="!fanshenhe" size="mini" round type="info" @click="onSubmit(2)">保存</el-button>
+        <el-button v-show="!fanshenhe" size="mini" round type="info" @click="onSubmit(10)">审核</el-button>
+        <el-button v-show="fanshenhe" size="mini" round type="info" @click="fanshenheclick">反审核</el-button>
       </div>
     </div>
-
     <el-form
       class="sellOrder"
       ref="form"
@@ -96,7 +90,7 @@
       style="width: 100%"
       :height="tabHeight"
     >
-      <el-table-column width="30" label="序号">
+      <el-table-column width="30" label="">
         <template slot-scope="scope">
           <!-- <el-button style="border:none" @click="del(scope.$index, form.Data)">{{(scope.$index+1)}}</el-button> -->
           <span
@@ -238,8 +232,9 @@
 
     <el-dialog
       :modal="zhezhao"
-      title="打印"
+      title=""
       :fullscreen="checkmingxifull"
+      :show-close="false"
       :visible.sync="dayinVisble"
     >
       <prince is="sellOrderyulan"></prince>
@@ -536,6 +531,7 @@ export default {
       this.fanshenhe = false;
       this.checkproductnumVisble = false;
       this.yidayinVisble = false;
+      this.fanshenhe = false;
       localStorage.sellFormData1 = "";
       this.$store.commit("getSellFormData1");
       this.form = {
@@ -763,6 +759,11 @@ export default {
       data.pageSize = 10;
       this.selectAccount(data, cb);
     },
+    fanshenheclick() {
+      this.showAlert("反审核成功", "success");
+      this.fanshenhe = false;
+    },
+
     selectAccount(data, cb) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
@@ -783,6 +784,10 @@ export default {
     },
 
     clickProductnum(index) {
+      if (this.shenhe) {
+        this.showAlert("请反审核之后再进行操作", "warning");
+        return;
+      }
       if (this.form.uid == "") {
         this.showAlert("请先选择客户", "warning");
         return;
@@ -874,6 +879,10 @@ export default {
         }
         return;
       }
+      if (status == 10) {
+        that.fanshenhe = true;
+      }
+
       this.newAddVisble = true;
 
       productnum = productnum.substring(0, productnum.length - 1);
@@ -958,7 +967,11 @@ export default {
         .then(function(response) {
           console.log(response);
           that.form.xhid = response.data.data[0];
-          that.showAlert("成功", "success");
+          if (status == 2) {
+            that.showAlert("保存成功", "success");
+          } else if (status == 10) {
+            that.showAlert("审核成功", "success");
+          }
         })
         .catch(function(error) {});
     },
@@ -1237,17 +1250,21 @@ export default {
   padding: 0px;
   text-align: center;
 }
-.el-table td,
-.el-table th {
+.el-table td {
   padding: 0px;
   text-align: center;
+  color: black;
+}
+.el-table th {
+  text-align: center;
+  color: black;
 }
 .el-table--border td:first-child .cell {
   padding: 0px;
   text-align: center;
 }
 .el-table--border th:first-child .cell {
-  padding: 0px;
+  /* padding: 0px; */
   text-align: center;
 }
 </style>

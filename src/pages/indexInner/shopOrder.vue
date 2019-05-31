@@ -36,7 +36,7 @@
     ></el-pagination>
     <!-- 采购子订单的弹窗 -->
     <el-dialog :title="childVisibleTitle" :visible.sync="childVisible" width="75%">
-      <el-table :data="childpurchaseData">
+      <el-table :data="childpurchaseData" border="true">
         <el-table-column>
           <el-table-column type="index" width="50" label="序号"></el-table-column>
         </el-table-column>
@@ -88,7 +88,7 @@
           >
         </div>
       </el-form>
-      <el-table :data="addjuancai.Data">
+      <el-table border="true" :data="addjuancai.Data">
         <el-table-column data-name="pici" label="产品批次">
           <template slot-scope="scope">
             <el-input data-name="pici" class="edit-cell" v-model="scope.row.pici"></el-input>
@@ -676,7 +676,7 @@ export default {
         type: type
       });
     },
-    selectFirm(data) {
+    selectFirm(data,cb) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
@@ -686,6 +686,7 @@ export default {
         .then(function(response) {
           console.log(response);
           that.firmData = response.data.data[0].list;
+          cb(response.data.data[0].list)
         })
         .catch(function(error) {});
     },
@@ -696,12 +697,17 @@ export default {
       this.piancaiVisible = true;
     },
     querySearch(queryString, cb) {
-      var firmData = this.firmData;
-      var results = queryString
-        ? firmData.filter(this.createFilter(queryString))
-        : firmData;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
+      // var firmData = this.firmData;
+      // var results = queryString
+      //   ? firmData.filter(this.createFilter(queryString))
+      //   : firmData;
+      // // 调用 callback 返回建议列表的数据
+      // cb(results);
+      var data = {}
+      data.pageSize = 10
+      data.pageNum = 1
+      data.firmname = queryString
+      this.selectFirm(data,cb)
     },
     createFilter(queryString) {
       return restaurant => {

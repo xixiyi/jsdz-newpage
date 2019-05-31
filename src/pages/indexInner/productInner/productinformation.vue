@@ -64,7 +64,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
-    style="text-align:center"
+      style="text-align:center"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage4"
@@ -86,7 +86,6 @@
             class="inline-input"
             v-model="form.seriesnum"
             :fetch-suggestions="querySearch"
-            placeholder="请点击选择系列"
             @select="handleSelect"
           >
             <template slot-scope="props">
@@ -152,12 +151,11 @@ export default {
       36 -
       30 +
       "px";
-    this.selectseries({ pageNum: 1, pageSize: 10 });
     this.selectproduct({ pageNum: 1, pageSize: 10 });
   },
   components: {},
   methods: {
-    selectseries(data) {
+    selectseries(data, cb) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
@@ -166,6 +164,7 @@ export default {
         })
         .then(function(response) {
           that.seriesData = response.data.data[0].list;
+          cb(response.data.data[0].list);
         })
         .catch(function(error) {});
     },
@@ -195,10 +194,11 @@ export default {
             that.showAlert(response.data.msg, "warning");
           } else {
             var data = {};
-            data.pageNum = 1;
+            data.pageNum = that.pageNum;
             data.pageSize = that.pageSize;
             that.selectproduct(data);
             that.startBianliang();
+            that.showAlert('添加成功', "success");
           }
         })
         .catch(function(error) {});
@@ -303,14 +303,19 @@ export default {
       this.form.seriesid = item.seriesid;
     },
     querySearch(queryString, cb) {
-      console.log(queryString);
-      console.log(this.mokuaiData);
-      var seriesData = this.seriesData;
-      var results = queryString
-        ? seriesData.filter(this.createFilter(queryString))
-        : seriesData;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
+      // console.log(queryString);
+      // console.log(this.mokuaiData);
+      // var seriesData = this.seriesData;
+      // var results = queryString
+      //   ? seriesData.filter(this.createFilter(queryString))
+      //   : seriesData;
+      // // 调用 callback 返回建议列表的数据
+      // cb(results);
+      var data = {};
+      data.pageNum = 1;
+      data.pageSize = 10;
+      data.seriesnum = queryString;
+      this.selectseries(data, cb);
     },
     createFilter(queryString) {
       console.log("jinli");

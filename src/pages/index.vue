@@ -22,9 +22,9 @@
         <div v-if="!isCollapse" :style="[headstyle]">
           <i @click="changeCollapse" class="el-icon-s-fold"></i>
         </div>
-        <div :style="[headstyle]">
+        <!-- <div style="margin-right:0px;margin-left:315px" :style="[headstyle]">
           <i @click="refreshConpan" class="el-icon-refresh-right"></i>
-        </div>
+        </div> -->
         <el-menu
           background-color="#252a2f"
           text-color="#ffffff"
@@ -34,6 +34,9 @@
           style="float:right;height:53px;line-height:53px"
           @select="handleSelect"
         >
+          <el-menu-item @click="refreshConpan" data-src="false" >
+            <i data-src="false" class="el-icon-refresh-right"></i>
+          </el-menu-item>
           <el-menu-item data-src="wodexiaoxi" data-title="我的消息" index="1">
             <i class="el-icon-message-solid"></i>
           </el-menu-item>
@@ -103,38 +106,38 @@
                   index="2-1"
                   class="mokuai_menuManager_2_1"
                   data-src
-                  data-title="销售订单"
-                >销售订单</el-menu-item>
+                  data-title="销货订单"
+                >销货订单</el-menu-item>
                 <el-menu-item
                   index="2-2"
                   class="mokuai_menuManager_2_2"
                   data-src="sellOrder"
-                  data-title="销售单"
-                >销售单</el-menu-item>
+                  data-title="销货单"
+                >销货单</el-menu-item>
                 <el-menu-item
                   index="2-3"
                   class="mokuai_menuManager_2_3"
                   data-src="sellOrderdaishenhe"
-                  data-title="销售待审核单据"
-                >销售待审核单据</el-menu-item>
+                  data-title="销货待审核单据"
+                >销货待审核单据</el-menu-item>
                 <el-menu-item
                   index="2-4"
                   class="mokuai_menuManager_2_4"
                   data-src="sellOrderselect"
-                  data-title="销售完成单据"
-                >销售完成单据</el-menu-item>
+                  data-title="销货已审核单据"
+                >销货已审核单据</el-menu-item>
                 <el-menu-item
                   index="2-5"
                   class="mokuai_menuManager_2_5"
                   data-src="www.baid7u.com"
-                  data-title="销售退货单"
-                >销售退货单</el-menu-item>
+                  data-title="销货退货单"
+                >销货退货单</el-menu-item>
                 <el-menu-item
                   index="2-6"
                   class="mokuai_menuManager_2_6"
                   data-src="sellOrdermingxi"
-                  data-title="销售明细"
-                >销售明细</el-menu-item>
+                  data-title="销货明细"
+                >销货明细</el-menu-item>
               </el-submenu>
               <el-submenu index="3" class="mokuai_menuManager_3">
                 <template slot="title">
@@ -282,31 +285,31 @@
                 <el-menu-item
                   index="5-1"
                   class="mokuai_menuManager_5_1"
-                  data-src="www.bsfgaidu.com"
+                  data-src="connectList"
                   data-title="客服沟通表"
                 >客服沟通表</el-menu-item>
                 <el-menu-item
                   index="5-2"
                   class="mokuai_menuManager_5_2"
-                  data-src="www.baresidu.com"
+                  data-src="yangBen"
                   data-title="样本发放表"
                 >样本发放表</el-menu-item>
                 <el-menu-item
                   index="5-3"
                   class="mokuai_menuManager_5_3"
-                  data-src="www.baidgrfeu.com"
+                  data-src="market"
                   data-title="市场调查表"
                 >市场调查表</el-menu-item>
                 <el-menu-item
                   index="5-4"
                   class="mokuai_menuManager_5_4"
-                  data-src="www.baisrdu.com"
+                  data-src="service"
                   data-title="售后回访表"
                 >售后回访表</el-menu-item>
                 <el-menu-item
                   index="5-5"
                   class="mokuai_menuManager_5_5"
-                  data-src="www.baigrsdu.com"
+                  data-src="report"
                   data-title="日周月报表"
                 >日周月报表</el-menu-item>
               </el-submenu>
@@ -421,7 +424,7 @@ import shouye from "./indexInner/shouye";
 /**购货模块 */
 import purchOrder from "./indexInner/purchOrder";
 import shopOrder from "./indexInner/shopOrder";
-import purchmingxi from "./indexInner/purchmingxi"
+import purchmingxi from "./indexInner/purchmingxi";
 
 /**销售模块 */
 import sellOrder from "./indexInner/sellOrder";
@@ -432,6 +435,13 @@ import sellOrdermingxi from "./indexInner/sellOrdermingxi";
 /** 仓库模块 */
 import insertInvenManager from "./indexInner/insertInvenManager";
 import inven from "./indexInner/inven";
+
+/** 报表模块 */
+import report from "./indexInner/report";
+import connectList from "./indexInner/connectList";
+import yangBen from "./indexInner/yangBen";
+import market from "./indexInner/market";
+import service from "./indexInner/service";
 
 /** 资料模块 */
 import kehu from "./indexInner/kehu";
@@ -463,7 +473,7 @@ export default {
         color: "#909399",
         "font-size": "18px",
         "vertical-align": "middle",
-        "margin-right":"40px"
+        "margin-right": "40px"
       },
 
       asideStyle: {
@@ -502,7 +512,12 @@ export default {
     sellOrderselect,
     sellOrderdaishenhe,
     sellOrdermingxi,
-    purchmingxi
+    purchmingxi,
+    report
+    // connectList,
+    // yangBen,
+    // market,
+    // service
   },
   mounted() {
     this.clientHeight.height =
@@ -511,6 +526,11 @@ export default {
       document.documentElement.clientHeight - 134 + "px";
     localStorage.globMainheight = this.iframeStyle.height;
     this.$store.commit("globMainheight");
+    if (localStorage.refsh == 1) {
+      localStorage.refsh = 2;
+      window.location.reload();
+    }
+    //
     console.log(JSON.parse(this.$store.state.user).dbid);
     if (JSON.parse(this.$store.state.user).dbid == undefined) {
       this.user = JSON.parse(localStorage.user);
@@ -525,6 +545,13 @@ export default {
     */
     handleOpen(key, keyPath) {
       console.log(key, keyPath);
+    },
+        showAlert(msg, type) {
+      this.$message({
+        showClose: true,
+        message: msg,
+        type: type
+      });
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath);
@@ -593,6 +620,7 @@ export default {
         if (this.editableTabs[i].name == this.editableTabsValue) {
           this.editableTabs[i].reload = false;
           this.$nextTick(() => (this.editableTabs[i].reload = true));
+          this.showAlert('刷新成功','success')
           return;
         }
       }

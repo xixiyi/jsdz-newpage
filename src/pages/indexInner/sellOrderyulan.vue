@@ -30,19 +30,27 @@
       :show-summary="showSummary"
       :summary-method="getSummaries"
       :data="form.Data"
+      fit="false"
     >
-      <el-table-column type="index" width="30" label="序号"></el-table-column>
-      <el-table-column prop="productnum" width="60" label="型号"></el-table-column>
-      <el-table-column prop="pici" width="80" label="批次"></el-table-column>
-      <el-table-column prop="seriesnum" width="60" label="系列"></el-table-column>
-      <el-table-column prop="guige" width="80" label="规格"></el-table-column>
-      <el-table-column prop="productname" width="60" label="产品名称"></el-table-column>
-      <el-table-column prop="productlocation" width="60" label="仓库"></el-table-column>
-      <el-table-column prop="kuwei" width="50" label="库位"></el-table-column>
-      <el-table-column prop="squarenumstring" width="100" label="明细"></el-table-column>
-      <el-table-column prop="squarenum" width="50" label="数量"></el-table-column>
-      <el-table-column prop="unitprice" width="50" label="单价"></el-table-column>
-      <el-table-column prop="allprice" width="50" label="金额"></el-table-column>
+      <el-table-column type="index" label="序号"></el-table-column>
+      <el-table-column prop="productnum" label="型号"></el-table-column>
+      <el-table-column prop="pici" label="批次"></el-table-column>
+      <el-table-column prop="seriesnum" label="系列"></el-table-column>
+      <el-table-column prop="guige" label="规格"></el-table-column>
+      <el-table-column prop="productname" label="产品名称"></el-table-column>
+      <el-table-column prop="productlocation" label="仓库"></el-table-column>
+      <el-table-column prop="kuwei" label="库位"></el-table-column>
+      <el-table-column prop="squarenumstring" label="明细">
+        <template slot-scope="scope">
+          <span v-for="(index , item) in scope.row.squarenumstring.split(',')" key="item">
+            {{index}}
+            <br v-if="item!=scope.row.squarenumstring.split(',').length-1">
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="squarenum" label="数量"></el-table-column>
+      <el-table-column prop="unitprice" label="单价"></el-table-column>
+      <el-table-column prop="allprice" label="金额"></el-table-column>
       <el-table-column prop="beizhu" label="备注"></el-table-column>
     </el-table>
     <el-form style="padding-left:10px" ref="form" :model="form">

@@ -6,16 +6,15 @@
     <el-table border="true" :data="dingdanmingxiData" style="width: 100%" :height="tabHeight">
       <el-table-column type="index" label="序号" width="50"></el-table-column>
       <el-table-column prop="productlocation" label="仓库" width="160"></el-table-column>
-      <el-table-column prop="username" label="规格" width="150"></el-table-column>
-      <el-table-column prop="productnum" label="产品名称" width="150"></el-table-column>
-      <el-table-column prop="pici" label="系列名" width="150"></el-table-column>
-      <el-table-column prop="realsportsquare" label="型号" width="150"></el-table-column>
-      <el-table-column prop="sportsquarenumstring" label="批次" width="150"></el-table-column>
-      <el-table-column prop="realsportsquare" label="支数" width="150"></el-table-column>
-      <el-table-column prop="orderbeizhu" label="数量" width="150"></el-table-column>
-      <el-table-column prop="alljiage" label="明细" width="150"></el-table-column>
-      <el-table-column prop="allprice" label="单价" width="150"></el-table-column>
-      <el-table-column prop="accountmanagername" label="总价" width="150"></el-table-column>
+      <el-table-column prop="guige" label="规格" width="150"></el-table-column>
+      <el-table-column prop="productname" label="产品名称" width="150"></el-table-column>
+      <el-table-column prop="seriesnum" label="系列名" width="150"></el-table-column>
+      <el-table-column prop="productnum" label="型号" width="150"></el-table-column>
+      <el-table-column prop="pici" label="批次" width="150"></el-table-column>
+      <el-table-column prop="sonnum" label="数量" width="150"></el-table-column>
+      <el-table-column prop="squarestring" label="明细" width="150"></el-table-column>
+      <el-table-column prop="purchaseprice" label="单价" width="150"></el-table-column>
+      <el-table-column prop="sonprice" label="总价" width="150"></el-table-column>
     </el-table>
     <el-pagination
       style="text-align:center"

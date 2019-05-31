@@ -111,12 +111,15 @@ export default {
               exp.toGMTString() +
               ";path=/" +
               localStorage.projectPath;
-              console.log(data.data.uid)
-              console.log(localStorage.projectPath)
+            console.log(data.data.uid);
+            console.log(localStorage.projectPath);
             that.showAlert("登录成功", "success");
-            that.router.push({
-              path: "/index"
-            });
+            localStorage.refsh = 1;
+            setTimeout(() => {
+              that.router.push({
+                path: "/index"
+              });
+            }, 1000);
           } else if (data.status == "1") {
             that.showAlert("您输入的账号没有注册", "warning");
           } else if (data.status == "2") {

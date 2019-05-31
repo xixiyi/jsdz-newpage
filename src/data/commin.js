@@ -1,6 +1,6 @@
 var _apiUrl = "http://www.jisudz.com/jbg/"
 localStorage.projectPath = "jbg"
-_apiUrl = "http://localhost/shhs/"
+// _apiUrl = "http://localhost/shhs/"
 var comUrl = {
     login: {
         login: _apiUrl + "login.do",                                                   //登录
@@ -56,6 +56,11 @@ var comUrl = {
         checkmingxi:_apiUrl+"checkmingxi.do",
         dayinstatus:_apiUrl+"updateshoporderdayin.do",
         dingdanmingxi:_apiUrl+"selectdingdanmingxi.do"
+    },
+    report:{
+        insert_day_report:_apiUrl+"insertshangyouribaobiao.do",
+        insert_week_report:_apiUrl+"insertshangyouweekbaobiao.do",
+        insert_month_report:_apiUrl+"insertshangyoumonthbaobiao.do"
     },
     firm: {
         insert: _apiUrl + "insertfirm.do",

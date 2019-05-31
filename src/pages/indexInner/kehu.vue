@@ -43,10 +43,10 @@
       :visible.sync="dialogVisible"
     >
       <el-form :model="form">
-        <el-form-item label="用户名" :label-width="formLabelWidth">
+        <el-form-item class="red_label" label="用户名*" :label-width="formLabelWidth">
           <el-input v-model="form.username" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="手机号" :label-width="formLabelWidth">
+        <el-form-item class="red_label" label="手机号*" :label-width="formLabelWidth">
           <el-input v-model="form.phone" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="地址" :label-width="formLabelWidth">
@@ -58,12 +58,11 @@
         <el-form-item label="预存款" :label-width="formLabelWidth">
           <el-input v-model="form.yufukuan" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="等级" :label-width="formLabelWidth">
+        <el-form-item class="red_label" label="等级*" :label-width="formLabelWidth">
           <el-autocomplete
             class="inline-input"
             v-model="form.dengjiname"
             :fetch-suggestions="dquerySearch"
-            placeholder="请点击选择等级"
             @select="dhandleSelect"
           >
             <template slot-scope="props">
@@ -71,12 +70,11 @@
             </template>
           </el-autocomplete>
         </el-form-item>
-        <el-form-item v-if="submitIndex==1" label="推荐人" :label-width="formLabelWidth">
+        <el-form-item class="red_label" v-if="submitIndex==1" label="推荐人*" :label-width="formLabelWidth">
           <el-autocomplete
             class="inline-input"
             v-model="form.accountmanagername"
             :fetch-suggestions="querySearch"
-            placeholder="请点击选择推荐人"
             @select="handleSelect"
           >
             <template slot-scope="props">
@@ -170,12 +168,10 @@ export default {
       36 -
       28 +
       "px";
-    this.selectAccountmanagername({});
     this.selectUser({ pageNum: 1, pageSize: 10 });
-    this.selectDengji({ pageNum: 1, pageSize: 10 });
   },
   methods: {
-    selectAccountmanagername(data) {
+    selectAccountmanagername(data, cb) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
@@ -185,10 +181,11 @@ export default {
         .then(function(response) {
           console.log(response.data.data);
           that.accountmanagerData = response.data.data;
+          cb(response.data.data);
         })
         .catch(function(error) {});
     },
-    selectDengji(data) {
+    selectDengji(data, cb) {
       var that = this;
       data.dbid = JSON.parse(localStorage.user).dbid;
       this.axios
@@ -196,8 +193,8 @@ export default {
           params: data
         })
         .then(function(response) {
-          console.log(response.data.data);
           that.dengjiData = response.data.data;
+          cb(response.data.data);
         })
         .catch(function(error) {});
     },
@@ -229,16 +226,18 @@ export default {
         that.showAlert("请正确填写手机号", "warning");
         return;
       }
-      if (data.email.trim() == "") {
-        that.showAlert("邮箱不能为空", "warning");
-        return;
+      if (data.email.trim() != "") {
+        if (
+          !/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/g.test(
+            data.email.trim()
+          )
+        ) {
+          that.showAlert("请填写正确的email", "warning");
+          return;
+        }
       }
-      if (
-        !/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/g.test(
-          data.email.trim()
-        )
-      ) {
-        that.showAlert("请填写正确的email", "warning");
+      if (data.dengjiname.trim() == "") {
+        that.showAlert("等级不能为空", "warning");
         return;
       }
       if (data.accountmanagername.trim() == "") {
@@ -258,7 +257,7 @@ export default {
           that.selectUser(data);
           that.startBianliang();
 
-          that.showAlert("添加成功", "success");
+          that.showAlert(response.data.data[0], "success");
         })
         .catch(function(error) {});
     },
@@ -330,12 +329,17 @@ export default {
       that.submitIndex = 1;
     },
     querySearch(queryString, cb) {
-      var accountmanagerData = this.accountmanagerData;
-      var results = queryString
-        ? accountmanagerData.filter(this.createFilter(queryString))
-        : accountmanagerData;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
+      // var accountmanagerData = this.accountmanagerData;
+      // var results = queryString
+      //   ? accountmanagerData.filter(this.createFilter(queryString))
+      //   : accountmanagerData;
+      // // 调用 callback 返回建议列表的数据
+      // cb(results);
+      var data = {};
+      data.accountmanagername = queryString;
+      data.pageSize = 10;
+      data.pageNum = 1;
+      this.selectAccountmanagername(data, cb);
     },
     createFilter(queryString) {
       console.log("jinli");
@@ -346,12 +350,17 @@ export default {
     },
 
     dquerySearch(queryString, cb) {
-      var dengjiData = this.dengjiData;
-      var results = queryString
-        ? dengjiData.filter(this.dcreateFilter(queryString))
-        : dengjiData;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
+      // var dengjiData = this.dengjiData;
+      // var results = queryString
+      //   ? dengjiData.filter(this.dcreateFilter(queryString))
+      //   : dengjiData;
+      // // 调用 callback 返回建议列表的数据
+      // cb(results);
+      var data = {};
+      data.dengjiname = queryString;
+      data.pageNum = 1;
+      data.pageSize = 10;
+      this.selectDengji(data, cb);
     },
     dcreateFilter(queryString) {
       console.log("jinli");
@@ -480,4 +489,11 @@ export default {
   width: 80%;
 }
 </style>
+
+<style>
+.red_label label.el-form-item__label{
+  color:red
+}
+</style>
+
 
