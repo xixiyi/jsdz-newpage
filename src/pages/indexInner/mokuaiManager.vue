@@ -3,14 +3,14 @@
     <div>
       <el-button type="primary" size="mini" round @click="openInsertDiv">添加模块</el-button>
     </div>
-    <el-table :data="mokuaiData" style="width: 100%" :height="tabHeight">
+    <el-table border="true" :data="mokuaiData" style="width: 100%" :height="tabHeight">
       <!-- <el-table-column prop="id" label="序号" width="150"></el-table-column> -->
       <el-table-column type="index" width="50" label="序号"></el-table-column>
       <el-table-column prop="mokuainame" label="模块名" width="150"></el-table-column>
       <el-table-column fixed="right" label="操作">
         <template slot-scope="scope">
           <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
-          <el-button @click="openDeleteDiv(scope.$index, mokuaiData)" type="text" size="small">删除模块</el-button>
+          <el-button @click="openDeleteDiv(scope.$index, mokuaiData)" type="text" size="small">删除</el-button>
           <el-button
             @click.native.prevent="updateTreeManager(scope.$index, mokuaiData,1)"
             type="text"

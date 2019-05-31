@@ -22,6 +22,9 @@
         <div v-if="!isCollapse" :style="[headstyle]">
           <i @click="changeCollapse" class="el-icon-s-fold"></i>
         </div>
+        <div :style="[headstyle]">
+          <i @click="refreshConpan" class="el-icon-refresh-right"></i>
+        </div>
         <el-menu
           background-color="#252a2f"
           text-color="#ffffff"
@@ -87,7 +90,7 @@
                 <el-menu-item
                   index="1-4"
                   class="mokuai_menuManager_1_4"
-                  data-src="shopOrder"
+                  data-src="purchmingxi"
                   data-title="购货明细"
                 >购货明细</el-menu-item>
               </el-submenu>
@@ -111,19 +114,25 @@
                 <el-menu-item
                   index="2-3"
                   class="mokuai_menuManager_2_3"
-                  data-src="www.baidu6.com"
-                  data-title="销售完成单据"
-                >销售完成单据</el-menu-item>
+                  data-src="sellOrderdaishenhe"
+                  data-title="销售待审核单据"
+                >销售待审核单据</el-menu-item>
                 <el-menu-item
                   index="2-4"
                   class="mokuai_menuManager_2_4"
+                  data-src="sellOrderselect"
+                  data-title="销售完成单据"
+                >销售完成单据</el-menu-item>
+                <el-menu-item
+                  index="2-5"
+                  class="mokuai_menuManager_2_5"
                   data-src="www.baid7u.com"
                   data-title="销售退货单"
                 >销售退货单</el-menu-item>
                 <el-menu-item
-                  index="2-5"
-                  class="mokuai_menuManager_2_5"
-                  data-src="www.baid8u.com"
+                  index="2-6"
+                  class="mokuai_menuManager_2_6"
+                  data-src="sellOrdermingxi"
                   data-title="销售明细"
                 >销售明细</el-menu-item>
               </el-submenu>
@@ -392,7 +401,7 @@
               :name="item.name"
               :closable="item.closable"
             >
-              <prince :is="item.content" :style="[iframeStyle]"></prince>
+              <prince v-if="item.reload" :is="item.content" :style="[iframeStyle]"></prince>
               <!-- <iframe :src="item.content" :style="[iframeStyle]"></iframe> -->
             </el-tab-pane>
           </el-tabs>
@@ -407,14 +416,18 @@
   引入不同的组件页面
 */
 /**首页 */
-import shouye from './indexInner/shouye'
+import shouye from "./indexInner/shouye";
 
 /**购货模块 */
 import purchOrder from "./indexInner/purchOrder";
 import shopOrder from "./indexInner/shopOrder";
+import purchmingxi from "./indexInner/purchmingxi"
 
 /**销售模块 */
-import sellOrder from "./indexInner/sellOrder"
+import sellOrder from "./indexInner/sellOrder";
+import sellOrderselect from "./indexInner/sellOrderselect";
+import sellOrderdaishenhe from "./indexInner/sellOrderdaishenhe";
+import sellOrdermingxi from "./indexInner/sellOrdermingxi";
 
 /** 仓库模块 */
 import insertInvenManager from "./indexInner/insertInvenManager";
@@ -449,7 +462,8 @@ export default {
         "line-height": "53px",
         color: "#909399",
         "font-size": "18px",
-        "vertical-align": "middle"
+        "vertical-align": "middle",
+        "margin-right":"40px"
       },
 
       asideStyle: {
@@ -465,7 +479,8 @@ export default {
           title: "主页",
           name: "1",
           content: "shouye",
-          closable: false
+          closable: false,
+          reload: true
         }
       ],
       tabIndex: 2,
@@ -483,7 +498,11 @@ export default {
     productManager,
     staff,
     mokuaiManager,
-    sellOrder
+    sellOrder,
+    sellOrderselect,
+    sellOrderdaishenhe,
+    sellOrdermingxi,
+    purchmingxi
   },
   mounted() {
     this.clientHeight.height =
@@ -545,9 +564,38 @@ export default {
         title: targetName.$attrs["data-title"],
         name: newTabName,
         content: targetName.$attrs["data-src"],
-        closable: true
+        closable: true,
+        reload: true
+      });
+
+      this.editableTabsValue = newTabName;
+    },
+    creatorqiehuanTab(obj) {
+      for (var i = 0; i < this.editableTabs.length; i++) {
+        if (this.editableTabs[i].content == obj.src) {
+          this.editableTabsValue = this.editableTabs[i].name;
+          return;
+        }
+      }
+      let newTabName = ++this.tabIndex + "";
+      this.editableTabs.push({
+        title: obj.title,
+        name: newTabName,
+        content: obj.src,
+        closable: true,
+        reload: true
       });
       this.editableTabsValue = newTabName;
+    },
+    refreshConpan() {
+      console.log(this.editableTabsValue);
+      for (var i = 0; i < this.editableTabs.length; i++) {
+        if (this.editableTabs[i].name == this.editableTabsValue) {
+          this.editableTabs[i].reload = false;
+          this.$nextTick(() => (this.editableTabs[i].reload = true));
+          return;
+        }
+      }
     },
     removeTab(targetName) {
       let tabs = this.editableTabs;
@@ -564,6 +612,17 @@ export default {
       }
       this.editableTabsValue = activeName;
       this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+    }
+  },
+  watch: {
+    creatIndexTabs(value) {
+      console.log(value);
+      this.creatorqiehuanTab(value);
+    }
+  },
+  computed: {
+    creatIndexTabs() {
+      return this.$store.state.tabObj;
     }
   }
 };

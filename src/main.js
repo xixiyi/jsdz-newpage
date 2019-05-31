@@ -40,16 +40,23 @@ Vue.config.productionTip = false;
 
 const store = new Vuex.Store({
   state: {
+    tabObj: {},
     count: 2,
     isloading: false,
     user: "{}",
     vueTitle: "登录",
     vueView: "login_in",
     globMainheight: 0,
-    flag:"true",
-    checkInven: ""
+    flag: true,
+    checkInven: "",
+    sellFormData: "",
+    sellFormData1: ""
   },
   mutations: {
+    creatIndexTabs(state, obj) {
+      console.log(obj)
+      state.tabObj = obj
+    },
     increment(state) {
       state.count++
     },
@@ -70,7 +77,13 @@ const store = new Vuex.Store({
       state.checkInven = localStorage.checkInven
     },
     changecaozuoindex(state) {
-      state.flag = localStorage.flag
+      state.flag = !state.flag
+    },
+    getSellFormData(state) {
+      state.sellFormData = localStorage.sellFormData
+    },
+    getSellFormData1(state) {
+      state.sellFormData1 = localStorage.sellFormData1
     }
   }
 })

@@ -48,6 +48,15 @@ var comUrl = {
     productPrice: {
         select_price_kcidAnduid:_apiUrl+"selectpriceBykcidanduid.do"
     },
+    newShop:{
+        creatnewShoporder:_apiUrl+"newcreatshoporder.do",
+        selectzudingdan:_apiUrl+"selectzudingdan.do",
+        selectzidingdan:_apiUrl+"selectSportByxhid.do",
+        deletezudingdan:_apiUrl+"deleteOrder.do",
+        checkmingxi:_apiUrl+"checkmingxi.do",
+        dayinstatus:_apiUrl+"updateshoporderdayin.do",
+        dingdanmingxi:_apiUrl+"selectdingdanmingxi.do"
+    },
     firm: {
         insert: _apiUrl + "insertfirm.do",
         select: _apiUrl + "selectfirm.do",

@@ -3,10 +3,10 @@
     <div>
       <el-button type="primary" size="mini" round @click="openInsertDiv">添加供应商</el-button>
     </div>
-    <el-table :data="firmData" style="width: 100%" :height="tabHeight">
+    <el-table border="true" :data="firmData" style="width: 100%" :height="tabHeight">
       <el-table-column type="index" width="50" label="序号"></el-table-column>
       <el-table-column prop="firmname" label="供应商" width="150"></el-table-column>
-      <el-table-column fixed="right" label="操作">
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button @click="openDeleteDiv(scope.$index, firmData)" type="text" size="small">删除</el-button>
         </template>

@@ -8,9 +8,29 @@
       </div>
       <div>
         <el-button v-show="newAddVisble" size="mini" round type="primary" @click="startBianliang">新增</el-button>
-        <el-button size="mini" round type="primary" @click="onSubmit">保存</el-button>
-        <el-button size="mini" round type="primary" @click="onSubmit">审核</el-button>
-        <el-button size="mini" round type="primary" @click="onSubmit">打印</el-button>
+        <el-button
+          v-show="fanshenhe"
+          size="mini"
+          round
+          type="primary"
+          @click="fanshenhe = false"
+        >反审核</el-button>
+        <el-button
+          v-show="newAddVisble&&!yidayinVisble"
+          size="mini"
+          round
+          type="primary"
+          @click="onPrint(2)"
+        >打印</el-button>
+        <el-button
+          v-show="newAddVisble&&yidayinVisble"
+          size="mini"
+          round
+          type="primary"
+          @click="onPrint(1)"
+        >已打印</el-button>
+        <el-button v-show="!fanshenhe" size="mini" round type="primary" @click="onSubmit(2)">保存</el-button>
+        <el-button v-show="!fanshenhe" size="mini" round type="primary" @click="onSubmit(10)">审核</el-button>
       </div>
     </div>
 
@@ -27,7 +47,6 @@
             class="inline-input"
             v-model="form.kehuname"
             :fetch-suggestions="querySearch"
-            placeholder="请点击选择客户"
             @select="handleSelect"
           >
             <template slot-scope="props">
@@ -41,7 +60,6 @@
             class="inline-input"
             v-model="form.accountmanagername"
             :fetch-suggestions="querySearchAccount"
-            placeholder="请点击选择销售人员"
             @select="handleSelectAccount"
           >
             <template slot-scope="props">
@@ -69,24 +87,22 @@
         </el-form-item>-->
       </div>
     </el-form>
-    <el-popover
-      ref="popover1"
-      placement="top-start"
-      title="标题"
-      width="200"
-      trigger="click"
-      content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。"
-    ></el-popover>
+
     <el-table
       :show-summary="showSummary"
       :summary-method="getSummaries"
       :data="form.Data"
+      :border="border"
       style="width: 100%"
       :height="tabHeight"
     >
-      <el-table-column label="序号">
+      <el-table-column width="30" label="序号">
         <template slot-scope="scope">
-          <el-button style="border:none" @click="del(scope.$index, form.Data)">{{(scope.$index+1)}}</el-button>
+          <!-- <el-button style="border:none" @click="del(scope.$index, form.Data)">{{(scope.$index+1)}}</el-button> -->
+          <span
+            style="border:none;display:block;width:100%;height:100%"
+            @click="del(scope.$index, form.Data)"
+          >{{(scope.$index+1)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="型号">
@@ -180,11 +196,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- <el-table-column fixed="right" label="操作">
-        <template slot-scope="scope">
-          <el-button @click="del(scope.$index, form.Data)" type="text" size="small">移除</el-button>
-        </template>
-    </el-table-column>-->
     <el-form ref="form" :model="form">
       <el-input placeholder="在这里输入摘要" style="width:100%" v-model="form.zhaiyao"></el-input>
     </el-form>
@@ -216,6 +227,7 @@
 
     <el-dialog
       title="选择型号"
+      :modal="zhezhao"
       :fullscreen="checkmingxifull"
       :before-close="closeproductnum"
       :visible.sync="checkproductnumVisble"
@@ -223,13 +235,22 @@
     >
       <prince is="inven"></prince>
     </el-dialog>
+
+    <el-dialog
+      :modal="zhezhao"
+      title="打印"
+      :fullscreen="checkmingxifull"
+      :visible.sync="dayinVisble"
+    >
+      <prince is="sellOrderyulan"></prince>
+    </el-dialog>
   </div>
 </template>
 
 
 <script>
 import inven from "./inven";
-
+import sellOrderyulan from "./sellOrderyulan";
 export default {
   data() {
     return {
@@ -241,9 +262,14 @@ export default {
       checkmingxifull: true,
       showSummary: true,
       newAddVisble: false,
-
       checkproductnumVisble: false,
       checkinvensquarenumVisble: false,
+      dayinVisble: false,
+      zhezhao: false,
+      sellselectVisble: false,
+      fanshenhe: false,
+      yidayinVisble: false,
+      border: true,
       //数据变量
       userData: [],
       accountmanagerData: [],
@@ -429,16 +455,20 @@ export default {
     };
   },
   components: {
-    inven
+    inven,
+    sellOrderyulan
   },
   mounted() {
     console.log(localStorage.globMainheight);
     console.log(document.documentElement.clientHeight);
     this.componentsStyle.height = localStorage.globMainheight;
-    this.form.danjutime =
-      "" + this.timeUtil.shifenmiaotime(new Date());
-    this.form.danjubianhao =
-      "" + this.timeUtil.timelongstring(new Date());
+    if (this.form.danjutime == "") {
+      this.form.danjutime = "" + this.timeUtil.shifenmiaotime(new Date());
+      this.form.danjubianhao =
+        "" +
+        this.timeUtil.timelongstring(new Date()) +
+        Math.ceil(Math.random() * 10);
+    }
     this.tabHeight =
       document.documentElement.clientHeight -
       53 -
@@ -467,6 +497,17 @@ export default {
         })
         .catch(() => {});
     },
+    sellselect() {
+      var tabObj = {};
+      tabObj.title = "销售待审核单据";
+      tabObj.src = "sellOrderdaishenhe";
+      tabObj.creattime = this.timeUtil.timelongstring(new Date());
+      this.$store.commit("creatIndexTabs", tabObj);
+    },
+    closesellselect() {
+      localStorage.sellorderstatus = 10;
+      this.sellselectVisble = false;
+    },
     showAlert(msg, type) {
       this.$message({
         showClose: true,
@@ -480,7 +521,7 @@ export default {
         title: title,
         message: content,
         dangerouslyUseHTMLString: true,
-        duration: 0,
+        duration: 3000,
         onClick: clickFun,
         position: "top-left",
         type: type
@@ -488,9 +529,15 @@ export default {
     },
 
     startBianliang() {
+      console.log(123);
       this.productnumIndex = 0;
       this.squarenumstringIndex = 0;
       this.newAddVisble = false;
+      this.fanshenhe = false;
+      this.checkproductnumVisble = false;
+      this.yidayinVisble = false;
+      localStorage.sellFormData1 = "";
+      this.$store.commit("getSellFormData1");
       this.form = {
         kehuname: "",
         uid: "",
@@ -741,9 +788,9 @@ export default {
         return;
       }
       this.productnumIndex = index;
-      this.checkproductnumVisble = true;
       localStorage.flag = false;
       this.$store.commit("changecaozuoindex");
+      this.checkproductnumVisble = true;
     },
     closeproductnum() {
       localStorage.flag = true;
@@ -753,22 +800,200 @@ export default {
       this.checkproductnumVisble = false;
     },
 
-    onSubmit() {
-      console.log(this.form);
+    onSubmit(status) {
+      var that = this;
+      var data = JSON.parse(JSON.stringify(that.form));
+      data.status = status;
+      var productnum = "";
+      var pici = "";
+      var guige = "";
+      var productname = "";
+      var productlocation = "";
+      var kuwei = "";
+      var squarenumstring = "";
+      var juanshu = "";
+      var squarenum = "";
+      var unitprice = "";
+      var hanshuidanjia = "";
+      var zhekoue = "";
+      var orderallprice = "";
+      var shuie = "";
+      var alljiashui = "";
+      var beizhu = "";
+      var kcid = "";
+      var mingxidanwei = "";
+      var yuanmishu = "";
+      var caijianmishu = "";
+      var mi = "";
+      var pingmi = "";
+      var seriesnum = "";
+      var xiliedanwei = "";
+      var cont = 0;
+      var Data = this.form.Data;
+      for (var i = 0; i < Data.length; i++) {
+        if (Data[i].kcid == "") {
+          cont++;
+          continue;
+        }
+        productnum += Data[i].productnum + ",";
+        pici += Data[i].pici + ",";
+        guige += Data[i].guige + ",";
+        productname += Data[i].productname + ",";
+        productlocation += Data[i].productlocation + ",";
+        kuwei += Data[i].kuwei + ",";
+        var isquarenumstring = Data[i].squarenumstring;
+        isquarenumstring = isquarenumstring.replace(/,/g, "，");
+        squarenumstring += isquarenumstring + ",";
+        juanshu += Data[i].juanshu + ",";
+        squarenum += Data[i].squarenum + ",";
+        unitprice += Data[i].unitprice + ",";
+        hanshuidanjia += Data[i].hanshuidanjia + ",";
+        zhekoue += Data[i].zhekoue + ",";
+        orderallprice += Data[i].allprice + ",";
+        shuie += Data[i].shuie + ",";
+        alljiashui += Data[i].alljiashui + ",";
+        beizhu += Data[i].beizhu + ",";
+        kcid += Data[i].kcid + ",";
+        mingxidanwei += Data[i].mingxidanwei + ",";
+        yuanmishu += Data[i].yuanmishu + ",";
+        if (Data[i].xhid != undefined || Data[i].xhid != null) {
+          caijianmishu += Data[i].caijianmishu.split(",")[0] + ",";
+        } else {
+          caijianmishu += Data[i].caijianmishu + ",";
+        }
+        mi += Data[i].mi + ",";
+        pingmi += Data[i].pingmi + ",";
+        seriesnum += Data[i].seriesnum + ",";
+        xiliedanwei += Data[i].xiliedanwei + ",";
+      }
+      if (cont == Data.length) {
+        if (status == 2) {
+          this.showAlert("请正确下单后再点击保存", "warning");
+        } else {
+          this.showAlert("请正确下单后再点击审核", "warning");
+        }
+        return;
+      }
       this.newAddVisble = true;
-      // this.showAlert(JSON.stringify(this.form), "success");
-      // var that = this;
-      // var data = that.form;
-      // data.dbid = JSON.parse(localStorage.user).dbid;
-      // this.axios
-      //   .get(this.commin.comUrl.productInven.insertinven, {
-      //     params: data
-      //   })
-      //   .then(function(response) {
-      //     that.showAlert("库存提交成功", "success");
-      //     that.startBianliang();
-      //   })
-      //   .catch(function(error) {});
+
+      productnum = productnum.substring(0, productnum.length - 1);
+      pici = pici.substring(0, pici.length - 1);
+      guige = guige.substring(0, guige.length - 1);
+      productname = productname.substring(0, productname.length - 1);
+      productlocation = productlocation.substring(
+        0,
+        productlocation.length - 1
+      );
+      kuwei = kuwei.substring(0, kuwei.length - 1);
+      squarenumstring = squarenumstring.substring(
+        0,
+        squarenumstring.length - 1
+      );
+      juanshu = juanshu.substring(0, juanshu.length - 1);
+      squarenum = squarenum.substring(0, squarenum.length - 1);
+      unitprice = unitprice.substring(0, unitprice.length - 1);
+      hanshuidanjia = hanshuidanjia.substring(0, hanshuidanjia.length - 1);
+      zhekoue = zhekoue.substring(0, zhekoue.length - 1);
+      orderallprice = orderallprice.substring(0, orderallprice.length - 1);
+      shuie = shuie.substring(0, shuie.length - 1);
+      alljiashui = alljiashui.substring(0, alljiashui.length - 1);
+      beizhu = beizhu.substring(0, beizhu.length - 1);
+      kcid = kcid.substring(0, kcid.length - 1);
+      mingxidanwei = mingxidanwei.substring(0, mingxidanwei.length - 1);
+      yuanmishu = yuanmishu.substring(0, yuanmishu.length - 1);
+
+      caijianmishu = caijianmishu.substring(0, caijianmishu.length - 1);
+
+      mi = mi.substring(0, mi.length - 1);
+      pingmi = pingmi.substring(0, pingmi.length - 1);
+      seriesnum = seriesnum.substring(0, seriesnum.length - 1);
+      xiliedanwei = xiliedanwei.substring(0, xiliedanwei.length - 1);
+
+      data.productnum = productnum;
+      data.pici = pici;
+      data.guige = guige;
+      data.productname = productname;
+      data.productlocation = productlocation;
+      data.kuwei = kuwei;
+      data.squarenumstring = squarenumstring;
+      data.juanshu = juanshu;
+      data.squarenum = squarenum;
+      data.unitprice = unitprice;
+      data.hanshuidanjia = hanshuidanjia;
+      data.zhekoue = zhekoue;
+      data.orderallprice = orderallprice;
+      data.shuie = shuie;
+      data.alljiashui = alljiashui;
+      data.beizhu = beizhu;
+      data.kcid = kcid;
+      data.mingxidanwei = mingxidanwei;
+      data.yuanmishu = yuanmishu;
+      data.caijianmishu = caijianmishu;
+      data.mi = mi;
+      data.pingmi = pingmi;
+      data.seriesnum = seriesnum;
+      data.xiliedanwei = xiliedanwei;
+
+      data.youhuiprice = data.youhuiprice || 0;
+      data.shoukuanprice = data.shoukuanprice || 0;
+      data.xiaoshoufeiyong = data.xiaoshoufeiyong || 0;
+      delete data["Data"];
+      if (data.jxsid != undefined) {
+        data.uid = data.jxsid;
+        // delete data["xhid"];
+        delete data["user"];
+        delete data["jxsid"];
+        delete data["shoptime"];
+        delete data["tax"];
+        delete data["ddtype"];
+        delete data["zilaid"];
+        delete data["weight"];
+        delete data["orderaccountid"];
+      }
+      data.dbid = JSON.parse(localStorage.user).dbid;
+      this.axios
+        .get(this.commin.comUrl.newShop.creatnewShoporder, {
+          params: data
+        })
+        .then(function(response) {
+          console.log(response);
+          that.form.xhid = response.data.data[0];
+          that.showAlert("成功", "success");
+        })
+        .catch(function(error) {});
+    },
+    onPrint(dayin) {
+      var that = this;
+      var data = {};
+      data.xhid = this.form.xhid;
+      data.count = 1;
+      data.dayin = dayin;
+      this.axios
+        .get(this.commin.comUrl.newShop.dayinstatus, {
+          params: data
+        })
+        .then(function(response) {
+          console.log(response);
+          if (dayin == 2) {
+            that.yidayinVisble = true;
+          } else {
+            that.yidayinVisble = false;
+            that.showAlert(response.data.data[0], "success");
+            that.form.dayintime = "";
+          }
+        })
+        .catch(function(error) {});
+      if (dayin == 2) {
+        that.form.dayintime = that.timeUtil.shifenmiaotime(new Date());
+        this.form.setcreattime = this.timeUtil.timelongstring(new Date());
+        localStorage.sellFormData = JSON.stringify(this.form);
+        that.$store.commit("getSellFormData");
+        that.dayinVisble = true;
+        setTimeout(() => {
+          window.print();
+          that.dayinVisble = false;
+        }, 1000);
+      }
     },
 
     matchAllprice(index) {
@@ -845,7 +1070,7 @@ export default {
       this.form.Data[this.productnumIndex].squarenumstring = obj.checkmingxi;
       this.form.Data[this.productnumIndex].yuanmishu = obj.yuanmishu;
       this.form.Data[this.productnumIndex].caijianmishu = obj.caijianmishu;
-      this.form.Data[this.productnumIndex].beizhu = obj.caijianbeizhu;
+      this.form.Data[this.productnumIndex].beizhu = obj.caijianbeizhu || "";
       var nowindex = this.productnumIndex;
 
       this.util.matchSquarenumTwo(
@@ -858,6 +1083,10 @@ export default {
           that.form.Data[that.productnumIndex].squarenum = res.num;
           that.form.Data[that.productnumIndex].mi = res.mishu;
           that.form.Data[that.productnumIndex].pingmi = res.pingmi;
+          if (obj.pianshu != 0) {
+            that.form.Data[that.productnumIndex].mi = 0;
+            that.form.Data[that.productnumIndex].juanshu = 0;
+          }
 
           var data = {};
           data.kcid = obj.kcid;
@@ -911,11 +1140,56 @@ export default {
       console.log("已经选择的型号");
       console.log(this.form.Data);
       this.showNotify("", content, null, "success");
+    },
+    getSellFormData1(val) {
+      console.log(val);
     }
   },
   computed: {
     checkInvenClick() {
       return this.$store.state.checkInven;
+    },
+    getSellFormData1() {
+      console.log("getSellFormData1");
+      if (this.$store.state.sellFormData1 == "") {
+        return;
+      }
+      var form = JSON.parse(this.$store.state.sellFormData1);
+      form.Data.push({
+        productnum: "",
+        pici: "",
+        seriesnum: "",
+        guige: "",
+        productname: "",
+        productlocation: "",
+        kuwei: "",
+        squarenumstring: "",
+        juanshu: "",
+        squarenum: "",
+        unitprice: "",
+        hanshuidanjia: "",
+        zhekoue: "",
+        allprice: "",
+        shuie: "",
+        alljiashui: "",
+        beizhu: "",
+        kcid: "",
+        mingxidanwei: "",
+        yuanmishu: "",
+        caijianmishu: "",
+        mi: "",
+        pingmi: ""
+      });
+      this.form = form;
+      console.log(form);
+      this.newAddVisble = true;
+      if (this.form.shopstatus == 10) {
+        this.fanshenhe = true;
+      }
+      if (this.form.dayin == 2) {
+        this.yidayinVisble = true;
+      }
+      return this.$store.state.sellFormData1;
     }
   }
 };
@@ -924,6 +1198,7 @@ export default {
 .edit-cell input.el-input__inner {
   padding: 0px;
   border: none;
+  text-align: center;
   background-color: #fff !important;
   color: #606266 !important;
 }
@@ -957,6 +1232,23 @@ export default {
 <style>
 .sellOrder label.el-form-item__label {
   line-height: 25px;
+}
+.el-table div.cell {
+  padding: 0px;
+  text-align: center;
+}
+.el-table td,
+.el-table th {
+  padding: 0px;
+  text-align: center;
+}
+.el-table--border td:first-child .cell {
+  padding: 0px;
+  text-align: center;
+}
+.el-table--border th:first-child .cell {
+  padding: 0px;
+  text-align: center;
 }
 </style>
 

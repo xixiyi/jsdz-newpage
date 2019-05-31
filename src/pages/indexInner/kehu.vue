@@ -3,7 +3,7 @@
     <div>
       <el-button type="primary" size="mini" round @click="openInsertDiv">添加客户</el-button>
     </div>
-    <el-table :data="userData" style="width: 100%" :height="tabHeight">
+    <el-table border="true" :data="userData" style="width: 100%" :height="tabHeight">
       <!-- <el-table-column prop="uid" label="序号" width="150"></el-table-column> -->
       <el-table-column type="index" width="50" label="序号"></el-table-column>
       <el-table-column prop="username" label="用户名" width="150"></el-table-column>
@@ -14,14 +14,14 @@
       <el-table-column prop="email" label="邮箱" width="150"></el-table-column>
       <el-table-column prop="yufukuan" label="预存款" width="150"></el-table-column>
       <el-table-column prop="zhangkuanzongji" label="应收账款" width="150"></el-table-column>
-      <el-table-column fixed="right" label="操作" width="150">
+      <el-table-column label="操作" width="150">
         <template slot-scope="scope">
           <el-button @click="openDeleteDiv(scope.$index, userData)" type="text" size="small">删除</el-button>
           <el-button
             @click.native.prevent="updateKehuinfo(scope.$index, userData)"
             type="text"
             size="small"
-          >更新</el-button>
+          >修改</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -395,7 +395,7 @@ export default {
     },
     updateKehuinfo(index, rows) {
       console.log(rows[index]);
-      this.dialogTitle = "更新信息：" + rows[index].username;
+      this.dialogTitle = "修改信息：" + rows[index].username;
       this.dialogVisible = true;
       this.submitIndex = 2;
       this.updateUid = rows[index].uid;

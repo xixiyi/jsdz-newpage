@@ -5,7 +5,7 @@
       <el-button type="primary" size="mini" round @click="openpiancaiDiv">添加片材</el-button>
       <el-button type="primary" size="mini" round @click="openjuancaiDiv">添加其他</el-button>
     </div>
-    <el-table :data="fatherpurchaseData" style="width: 100%" :height="tabHeight">
+    <el-table border="true" :data="fatherpurchaseData" style="width: 100%" :height="tabHeight">
       <el-table-column type="index" width="50" label="序号"></el-table-column>
       <el-table-column prop="time" label="时间" width="150"></el-table-column>
       <el-table-column prop="firmname" label="往来单位" width="150"></el-table-column>

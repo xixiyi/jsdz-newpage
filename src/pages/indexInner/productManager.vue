@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-tabs tab-position="left" v-model="first" @tab-click="tabClick" :style="componentsStyle">
+    <el-tabs border="true" tab-position="left" v-model="first" @tab-click="tabClick" :style="componentsStyle">
       <el-tab-pane label="品牌系列" name="first">
         <series />
       </el-tab-pane>

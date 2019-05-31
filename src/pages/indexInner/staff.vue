@@ -3,7 +3,7 @@
     <div>
       <el-button type="primary" size="mini" round @click="openInsertDiv">添加员工</el-button>
     </div>
-    <el-table :data="userData" style="width: 100%" :height="tabHeight">
+    <el-table border="true" :data="userData" style="width: 100%" :height="tabHeight">
       <!-- <el-table-column prop="uid" label="序号" width="150"></el-table-column> -->
       <el-table-column type="index" width="50" label="序号"></el-table-column>
       <el-table-column prop="username" label="用户名" width="150"></el-table-column>
@@ -13,7 +13,7 @@
       <el-table-column fixed="right" label="操作">
         <template slot-scope="scope">
           <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
-          <el-button @click="openDeleteDiv(scope.$index, userData)" type="text" size="small">删除员工</el-button>
+          <el-button @click="openDeleteDiv(scope.$index, userData)" type="text" size="small">删除</el-button>
           <el-button
             @click.native.prevent="updateMokuai(scope.$index, userData)"
             type="text"

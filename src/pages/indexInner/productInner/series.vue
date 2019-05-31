@@ -3,7 +3,7 @@
     <div>
       <el-button type="primary" size="mini" round @click="openInsertDiv">添加品牌系列</el-button>
     </div>
-    <el-table :data="seriesData" style="width: 100%" :height="tabHeight">
+    <el-table border="true" :data="seriesData" style="width: 100%" :height="tabHeight">
       <!-- <el-table-column prop="id" label="序号" width="150"></el-table-column> -->
       <el-table-column type="index" width="50" label="序号"></el-table-column>
       <el-table-column prop="seriesname" label="品牌名" width="150"></el-table-column>
@@ -20,7 +20,7 @@
         <template>描述先空着</template>
       </el-table-column>
       <!-- <el-table-column prop="pinpaipaixu" label="排序" width="150"></el-table-column> -->
-      <el-table-column fixed="right" width="150" label="操作">
+      <el-table-column width="150" label="操作">
         <template slot-scope="scope">
           <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
           <el-button
@@ -29,20 +29,20 @@
             @click="openDeleteDiv(scope.$index, seriesData)"
             type="text"
             size="small"
-          >隐藏</el-button>
+          >删除</el-button>
           <el-button
             v-if="scope.row.yincang==2"
             style="margin-right:10px"
             @click="openDeleteDiv1(scope.$index, seriesData)"
             type="text"
             size="small"
-          >已隐藏</el-button>
+          >恢复</el-button>
           <el-button
             style="margin-left:0px;margin-right:10px"
             @click="openUpdatediv(scope.$index, seriesData)"
             type="text"
             size="small"
-          >更新</el-button>
+          >修改</el-button>
           <!--  <el-button
             @click.native.prevent="updateTreeManager(scope.$index, mokuaiData,1)"
             type="text"
@@ -318,7 +318,7 @@ export default {
     openDeleteDiv(index, rows) {
       var that = this;
       this.$confirm(
-        "此操作将隐藏" + rows[index].seriesnum + ", 是否继续?",
+        "此操作将删除" + rows[index].seriesnum + ", 是否继续?",
         "",
         {
           confirmButtonText: "确定",
@@ -334,7 +334,7 @@ export default {
     openDeleteDiv1(index, rows) {
       var that = this;
       this.$confirm(
-        "此操作将显示" + rows[index].seriesnum + ", 是否继续?",
+        "此操作将恢复" + rows[index].seriesnum + ", 是否继续?",
         "",
         {
           confirmButtonText: "确定",

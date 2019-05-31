@@ -3,7 +3,7 @@
     <div>
       <el-button type="primary" size="mini" round @click="openInsertDiv">添加型号</el-button>
     </div>
-    <el-table :data="productData" style="width: 100%" :height="tabHeight">
+    <el-table border="true" :data="productData" style="width: 100%" :height="tabHeight">
       <!-- <el-table-column prop="id" label="序号" width="150"></el-table-column> -->
       <el-table-column type="index" width="50" label="序号"></el-table-column>
       <el-table-column prop="series.seriesname" label="品牌名" width="150"></el-table-column>
@@ -24,7 +24,7 @@
         <template slot-scope="scope">{{scope.row.invenbaojing}}{{scope.row.series.xiliedanwei}}</template>
       </el-table-column>
       <el-table-column prop="weight" label="重量" width="150"></el-table-column>
-      <el-table-column fixed="right" width="150" label="操作">
+      <el-table-column width="150" label="操作">
         <template slot-scope="scope">
           <!-- @click.native.prevent="deleteRow(scope.$index, mokuaiData)" -->
           <el-button
@@ -32,13 +32,13 @@
             @click="openDeleteDiv(scope.$index, productData)"
             type="text"
             size="small"
-          >隐藏</el-button>
+          >删除</el-button>
           <el-button
             style="margin-right:10px"
             @click="openupdateDiv(scope.$index, productData)"
             type="text"
             size="small"
-          >更新</el-button>
+          >修改</el-button>
           <!-- <el-button
             style="margin-left:0px;margin-right:10px"
             @click="openUpdatediv(scope.$index, productData)"

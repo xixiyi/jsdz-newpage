@@ -10,31 +10,46 @@
         <!-- </el-form-item> -->
       </div>
     </el-form>
-    <el-table :data="invenData" style="width: 100%" :height="tabHeight">
-      <el-table-column type="index" width="50" label="序号"></el-table-column>
-      <el-table-column prop="shengchantime" label="生产日期" width="150"></el-table-column>
-      <el-table-column prop="productlocation" label="库存地" width="150"></el-table-column>
-      <el-table-column prop="seriesname" label="品牌名" width="150"></el-table-column>
-      <el-table-column prop="seriesnum" label="系列名" width="150"></el-table-column>
-      <el-table-column prop="kehuname" label="客户名称" width="150"></el-table-column>
-      <el-table-column prop="productname" label="产品名称" width="150"></el-table-column>
-      <el-table-column prop="guige" label="规格" width="150"></el-table-column>
-      <el-table-column prop label="图片" width="150">
+    <el-table :data="invenData" :border="border" style="width: 100%" :height="tabHeight">
+      <el-table-column prop="shengchantime" label="生产日期" width="100"></el-table-column>
+      <el-table-column prop="productlocation" label="库存地" width="65"></el-table-column>
+      <el-table-column prop="seriesname" label="品牌名" width="65"></el-table-column>
+      <el-table-column prop="seriesnum" label="系列名" width="65"></el-table-column>
+      <el-table-column prop="kehuname" label="客户名称" width="80"></el-table-column>
+      <el-table-column prop="productname" label="产品名称" width="80"></el-table-column>
+      <el-table-column prop="guige" label="规格" width="80"></el-table-column>
+      <el-table-column prop label="图片" width="50">
         <template slot-scope="scope">
           <img style="width:30px;height:30px" :src="scope.row.productphoto" alt>
         </template>
       </el-table-column>
-      <el-table-column prop="productnum" label="型号" width="150"></el-table-column>
-      <el-table-column prop="pici" label="批次" width="150"></el-table-column>
-      <el-table-column prop="jiancheng" label="简称" width="150"></el-table-column>
-      <el-table-column prop="kuwei" label="库位" width="150"></el-table-column>
-      <el-table-column prop="newsquarenum" label="库存" width="150"></el-table-column>
-      <el-table-column prop="squarenumstring" label="库存明细" width="150"></el-table-column>
-      <el-table-column prop="allcatse" label="包装" width="150"></el-table-column>
-      <el-table-column prop="kucunbeizhu" label="备注" width="150"></el-table-column>
-      <el-table-column prop="yonghukucunbeizhu" label="库存备注" width="150"></el-table-column>
-      <el-table-column v-if="flag" label="操作" width="150"></el-table-column>
-      <el-table-column v-if="!flag" fixed="right" label="操作" width="50">
+      <el-table-column prop="productnum" label="型号" width="80"></el-table-column>
+      <el-table-column prop="pici" label="批次" width="100"></el-table-column>
+      <el-table-column prop="jiancheng" label="简称" width="50"></el-table-column>
+      <el-table-column prop="kuwei" label="库位" width="50"></el-table-column>
+      <el-table-column label="库存" width="130">
+        <template slot-scope="scope">
+          <span v-if="scope.row.pianshu!=0">{{scope.row.newsquarenum}}㎡</span>
+          <span v-else>{{scope.row.newsquarenum}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="squarenumstring" label="库存明细" width="150">
+        <template slot-scope="scope">
+          <span v-for="(index , item) in scope.row.squarenumstring.split(',')" key="item">
+            {{index}}
+            <span
+              v-if="item!=scope.row.squarenumstring.split(',').length-1"
+              style="color:red"
+            >|</span>
+            <br v-if="item%2!=0&&item!=scope.row.squarenumstring.split(',').length-1">
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="allcatse" label="包装" width="50"></el-table-column>
+      <el-table-column prop="kucunbeizhu" label="备注" width="50"></el-table-column>
+      <el-table-column prop="yonghukucunbeizhu" label="库存备注" width="100"></el-table-column>
+      <el-table-column v-if="flag" label="操作" width="100"></el-table-column>
+      <el-table-column v-else label="操作" width="50">
         <template slot-scope="scope">
           <el-button
             style="margin-right:10px"
@@ -93,6 +108,7 @@ export default {
       pageSize: 10,
       pageNum: 1,
       flag: true,
+      border: true,
       inputSquarenumstringVisble: false,
       caijianinputVisble: false,
       zhezhao: false,
@@ -185,16 +201,26 @@ export default {
         })
           .then(({ value }) => {
             console.log(value);
+            if (Number(value) > Number(rows[index].squarenum)) {
+              that.showAlert("输入的数量大于库存的数量了", "warning");
+              return;
+            }
             var pianpingmi = Number(rows[index].squarenumstring.split("*")[1]);
 
-            rows[index].checkmingxi =
-              that.util.changeNum(Number(value) / pianpingmi, 0) +
-              "*" +
-              pianpingmi;
+            var zongpianshu = Math.ceil(Number(value) / pianpingmi);
+            rows[index].checkmingxi = zongpianshu + "*" + pianpingmi;
             rows[index].yuanmishu = "";
             rows[index].caijianmishu = "";
             rows[index].checktime = that.timeUtil.timelongstring(new Date());
             rows[index].piancainum = value;
+
+            rows[index].caijianbeizhu =
+              Math.floor(zongpianshu / rows[index].pianshu) +
+              "箱" +
+              that.util.changeNum(zongpianshu % rows[index].pianshu, 0) +
+              "片";
+            console.log(rows[index].caijianbeizhu);
+            console.log(rows[index].checkmingxi);
             localStorage.checkInven = JSON.stringify(rows[index]);
             this.$store.commit("checkInvenClick");
           })
@@ -212,6 +238,7 @@ export default {
       });
     },
     onSubmit() {
+      var that = this;
       if (this.checkmingxi == "") {
         this.showAlert("请填写选择的明细", "warning");
         return;
@@ -230,31 +257,58 @@ export default {
           return;
         }
       }
-      this.invenData[this.checkindex].checkmingxi = this.checkmingxi;
-      this.invenData[this.checkindex].caijianmishu = this.caijianmishu;
-      this.invenData[this.checkindex].yuanmishu = this.yuanmishu;
-      this.invenData[this.checkindex].checktime = this.timeUtil.timelongstring(
-        new Date()
-      );
-      if (this.caijianmishu != "" && this.yuanmishu != "") {
-        this.invenData[this.checkindex].caijianbeizhu =
-          this.invenData[this.checkindex].yuanmishu +
-          "中裁" +
-          this.invenData[this.checkindex].caijianmishu;
+      if (this.yuanmishu != "") {
+        if (
+          this.invenData[this.checkindex].squarenumstring.indexOf(
+            "*" + this.yuanmishu
+          ) == -1
+        ) {
+          this.showAlert("没有找到需要裁剪的原米数", "warning");
+          return;
+        }
       }
 
-      console.log(this.invenData[this.checkindex]);
-
-      localStorage.checkInven = JSON.stringify(this.invenData[this.checkindex]);
-      this.$store.commit("checkInvenClick");
-      this.inputSquarenumstringVisble = false;
-      this.checkmingxi = "";
-      this.yuanmishu = "";
-      this.caijianmishu = "";
-      this.caijianinputVisble = false;
-
-      // localStorage.checkInven = "";
-      // this.$store.commit("checkInvenClick");
+      var data = {};
+      data.invensquarenumstring = this.invenData[
+        this.checkindex
+      ].squarenumstring;
+      data.ordersquarenumstring = this.checkmingxi;
+      data.yuanmishu = this.yuanmishu;
+      data.caijianmishu = this.caijianmishu;
+      this.axios
+        .get(this.commin.comUrl.newShop.checkmingxi, {
+          params: data
+        })
+        .then(function(response) {
+          console.log(response);
+          if (response.data.data[0].indexOf("没有") != -1) {
+            that.showAlert(response.data.data[0], "warning");
+          } else {
+            that.invenData[that.checkindex].checkmingxi = that.checkmingxi;
+            that.invenData[that.checkindex].caijianmishu = that.caijianmishu;
+            that.invenData[that.checkindex].yuanmishu = that.yuanmishu;
+            that.invenData[
+              that.checkindex
+            ].checktime = that.timeUtil.timelongstring(new Date());
+            if (that.caijianmishu != "" && that.yuanmishu != "") {
+              that.invenData[that.checkindex].caijianbeizhu =
+                that.invenData[that.checkindex].yuanmishu +
+                "中裁" +
+                that.invenData[that.checkindex].caijianmishu;
+            }
+            console.log(that.invenData[that.checkindex]);
+            localStorage.checkInven = JSON.stringify(
+              that.invenData[that.checkindex]
+            );
+            that.$store.commit("checkInvenClick");
+            that.inputSquarenumstringVisble = false;
+            that.checkmingxi = "";
+            that.yuanmishu = "";
+            that.caijianmishu = "";
+            that.caijianinputVisble = false;
+          }
+        })
+        .catch(function(error) {});
     },
     showNotify(title, content, clickFun, type) {
       // const h = this.$createElement;
@@ -272,20 +326,20 @@ export default {
   },
   watch: {
     changecaozuoindex(val) {
-      if (val == "true") {
-        this.flag = true;
-      } else {
-        this.flag = false;
-      }
+      console.log(val);
     }
   },
   computed: {
     changecaozuoindex() {
-      if (this.$store.state.flag == "true") {
+      console.log("进来了");
+      if (localStorage.flag == "true") {
         this.flag = true;
-      } else {
+      } else if (localStorage.flag == "false") {
         this.flag = false;
       }
+
+      // this.flag = this.$store.state.flag
+      console.log(localStorage.flag);
       return this.$store.state.flag;
     }
   }
